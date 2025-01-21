@@ -72,3 +72,8 @@ def NearestConst(x):
     return x + n_sign * n_dist
 
 
+def sanitize_hex_convert_bytes(hex: str) -> bytes:
+    all_whitespace = ''.join(chr(i) for i in range(0x110000) if chr(i).isspace())
+    translation_table = str.maketrans('', '', all_whitespace)
+    hex = hex.translate(translation_table)
+    return bytes.fromhex(hex)

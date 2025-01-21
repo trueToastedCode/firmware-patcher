@@ -28,7 +28,7 @@ import io
 import pathlib
 from mi_patcher import MiPatcher
 from nb_patcher import NbPatcher
-from util import SignatureException
+from util import SignatureException, sanitize_hex_convert_bytes
 from zippy import Zippy
 from datetime import datetime
 
@@ -166,6 +166,11 @@ def patch(data):
     elif device in ["f2pro", "f2plus", "f2", "g2", "4plus", "4max"]:
         patcher = NbPatcher(data, device)
         is_nb = True
+
+    embed_enc_key = flask.request.form.get('embed_enc_key', None)
+    embed_enc_key = embed_enc_key.strip() if embed_enc_key is not None else None
+    if embed_enc_key:
+        res.append(('EMBED_ENC_KEY', patcher.embed_enc_key(embed_enc_key)))
 
     dpc = flask.request.form.get('dpc', None)
     if dpc is not None:
@@ -397,6 +402,12 @@ def patch_firmware():
     dev = flask.request.form.get('device', None)
     pod = flask.request.form.get('patch', None)
 
+    custom_enc_key = flask.request.form.get('custom_enc_key', None)
+    custom_enc_key = custom_enc_key.strip() if custom_enc_key is not None else None
+    if custom_enc_key:
+        custom_enc_key = sanitize_hex_convert_bytes(custom_enc_key)
+        assert len(custom_enc_key) == 16
+
     zippy = Zippy(data, model=dev)
     if fname.endswith(".bin.enc"):
         zippy.data = zippy.decrypt()
@@ -404,7 +415,13 @@ def patch_firmware():
 
     try:
         res, data_patched = patch(zippy.data)
-        if not res:
+        if (
+            not res
+            and (
+                not custom_enc_key
+                or (custom_enc_key and pod != "Zip")
+            )
+        ):
             return 'No patches applied. Make sure to select the correct input file and at least one patch.'
         params = '\n'.join([x[0] for x in res]) + '\n'
         zippy.params = params
@@ -416,7 +433,7 @@ def patch_firmware():
         filename = f"ngfw_{dev}_{get_datetime()}"
         mem = io.BytesIO()
         if pod == 'Zip':
-            data_patched = zippy.zip_it('nice'.encode())
+            data_patched = zippy.zip_it('nice'.encode(), key=custom_enc_key)
             filename += ".zip"
         elif pod == 'Bin':
             filename += ".bin"

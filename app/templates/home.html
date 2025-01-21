@@ -100,6 +100,30 @@
             </div>
         </div>
     </div>
+    <div class="card-group text-center">
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="embed_enc_key_cb" onchange="CheckForm('embed_enc_key', this);">
+                <label class="form-check-label"><b>Embed Encryption Key</b></label>
+            </div>
+            <div class="card-body">
+                <div class="card-text">Custom encryption key to be embedded into the firmware. Future updates will have to be encrypted with this key.</div>
+                <div class="py-2"></div>
+                <input class="form-control" type="text" name="embed_enc_key">
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="custom_enc_key_cb" onchange="CheckForm('custom_enc_key', this);">
+                <label class="form-check-label"><b>Custom Encryption Key</b></label>
+            </div>
+            <div class="card-body">
+                <div class="card-text">Custom encryption key the firmware will be encrypted with. This key has to match the key embedded in the current installation.</div>
+                <div class="py-2"></div>
+                <input class="form-control" type="text" name="custom_enc_key">
+            </div>
+        </div>
+    </div>
 
     <br/>
     <h5 class="text-center">ESC</h5>
@@ -637,6 +661,8 @@
         "RFM": "rfm",
         "RML": "rml",
         "DMN": "dmn",
+        "EMBED_ENC_KEY": "embed_enc_key",
+        "CUSTOM_ENC_KEY": "custom_enc_key",
         "BLM": "blm",
         "BLM_ALM": "blm_alm",
 
@@ -941,6 +967,8 @@
     }
 
     function DisableAll(disable) {
+        GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = disable;
+        GetForm(forms.CUSTOM_ENC_KEY+"_cb").disabled = disable;
         GetForm(forms.DMN).disabled = disable;
         GetForm(forms.RML).disabled = disable;
         GetForm(forms.BTS).disabled = disable;
@@ -1009,6 +1037,8 @@
         ChangeForm(forms.AMMETER, false);
         ChangeForm(forms.RFM, false);
         ChangeForm(forms.RML, false);
+        ChangeForm(forms.EMBED_ENC_KEY, "FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0", false);
+        ChangeForm(forms.CUSTOM_ENC_KEY, "FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0", false);
         ChangeForm(forms.BLM, false);
         ChangeForm(forms.BLM_ALM, false);
 
