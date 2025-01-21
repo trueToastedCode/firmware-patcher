@@ -88,15 +88,9 @@ class BasePatcher():
            group=PatchGroup.GENERAL)
     def embed_enc_key(self, enc_key_str):
         '''
-        OP: trueToastedCode
+        OP: trueToastedCode, Encryptize
         Description: Replace embedded default encryption key against a custom one
         '''
-        def find_pattern_wrap(*args, **kwargs):
-            try:
-                return FindPattern(*args, **kwargs)
-            except SignatureException:
-                return -1
-
         # convert string to bytes
         assert isinstance(enc_key_str, str)
         enc_key = sanitize_hex_convert_bytes(enc_key_str)
@@ -104,20 +98,14 @@ class BasePatcher():
 
         # setup signature which is the default encryption key
         sig = [ 0xFE, 0x80, 0x1C, 0xB2, 0xD1, 0xEF, 0x41, 0xA6, 0xA4, 0x17, 0x31, 0xF5, 0xA0, 0x68, 0x24, 0xF0 ]
-        sig_bytes = bytes(bytearray(sig))
+        default_enc_key = bytes(bytearray(sig))
 
-        # create a patch for all offsets
-        offset = -len(sig)
-        patches = []
+        # patch first occurance of default against custom key
+        # (if present, later occurance needs to stay)
+        offset = FindPattern(self.data, sig)
+        self.data[offset:offset + len(sig)] = enc_key
 
-        while (offset := find_pattern_wrap(self.data, sig, start=offset + len(sig))) != -1:
-            self.data[offset:offset + len(sig)] = enc_key
-            patches.append((f"custom_enc_key_{hex(offset)[2:]}", hex(offset), sig_bytes.hex(), enc_key.hex()))
-        
-        if not patches:
-            raise SignatureException('Default key not found!')
-
-        return patches
+        return self.ret('embed_enc_key', offset, default_enc_key, enc_key)
 
     @patch(label="dpc",
            description="Activate/Deactivate DPC via register.",
