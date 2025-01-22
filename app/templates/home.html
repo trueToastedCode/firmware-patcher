@@ -55,8 +55,9 @@
         <p class="text">
         Important notes: This information service is provided free of charge and for personal use only. Commercial use, selling or distributing files, services or parts related to this service is prohibited (see <a href="/disclaimer">disclaimer</a>). If you decide to use any of the information provided here for your project, please add a reference to this site! The source code is available at <a href="https://github.com/dnandha/firmware-patcher">GitHub</a>. 
         </p>
-        <p class="text text-danger">
-            Never apply a patch more than once, as it may damage your controller. Firmwares already tagged as 'Compat' don't require a Compat patch.
+        <p class="text r">
+            <span class="text-danger">Never apply a patch more than once, as it may damage your controller.</span><br>
+            <span class="text-muted">Note that firmware versions tagged as 'Compat' by Wally don't include the compatibility patch but only a patched key.</span>
         </p>
     </div>
 
@@ -109,8 +110,8 @@
                 <input class="form-check-input" type="checkbox" name="embed_enc_key_cb" onchange="CheckForm('embed_enc_key', this);">
                 <label class="form-check-label"><b>Embed Encryption Key</b></label>
             </div>
-            <div class="card-body">
-                <div class="card-text">Custom encryption key to be embedded into the firmware. Future updates will have to be encrypted with this key.</div>
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                <div class="card-text">Custom encryption key to be embedded into the firmware. Future updates will have to be encrypted with this key. Changing key from custom key in installation does require a Compat Patch.</div>
                 <div class="py-2"></div>
                 <input class="form-control text-center" type="text" name="embed_enc_key">
             </div>
@@ -120,7 +121,7 @@
                 <input class="form-check-input" type="checkbox" name="custom_enc_key_cb" onchange="CheckForm('custom_enc_key', this);">
                 <label class="form-check-label"><b>Custom Encryption Key</b></label>
             </div>
-            <div class="card-body">
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
                 <div class="card-text">Custom encryption key the firmware will be encrypted with. This key has to match the key embedded in the current installation.</div>
                 <div class="py-2"></div>
                 <input class="form-control text-center" type="text" name="custom_enc_key">
