@@ -57,7 +57,7 @@
         </p>
         <p class="text r">
             <span class="text-danger">Never apply a patch more than once, as it may damage your controller.</span><br>
-            <span class="text-muted">Note that firmware versions tagged as 'Compat' by Wally don't include the compatibility patch but only a patched key.</span>
+            <span class="text-muted">Notice that firmwares tagges as 'Compat' may not already have a patched key check.</span>
         </p>
     </div>
 
@@ -84,15 +84,18 @@
 
     <hr/>
     <h5 class="text-center">FW</h5>
-    <div class="card-group text-center">
+    <div id="disable_key_check" class="card-group text-center">
 		<div class="card">
             <div class="card-header">
                 <input class="form-check-input" type="checkbox" name="rml">
-                <label class="form-check-label"><b>Disable Key/Model Check</b></label>
+                <label class="form-check-label"><b>Disable Model Check</b></label><!-- Xiaomi -->
+                <label class="form-check-label"><b>Disable Key Check</b></label><!-- Ninebot -->
             </div>
-            <div class="card-body">
-                <b>Xiaomi</b>: Some DRVs restrict flashing of DRVs to the ones belonging to the model. This mod disables checks and allows flashing all DRVs (for example: DRV016 to DRV247/SHFW).<br/>
-                <b>Ninebot</b>: Disables the check if the scooter's current encryption key matches the key in the new firmware. It can be useful when you want to change your current key to a different one.
+            <div class="card-body"><!-- Xiaomi -->
+                Some DRVs restrict flashing of DRVs to the ones belonging to the model. This mod disables checks and allows flashing all DRVs (for example: DRV016 to DRV247/SHFW).<br/>
+            </div>
+            <div class="card-body"><!-- Ninebot -->
+                Disables the check if the scooter's current encryption key matches the key in the new firmware. It can be useful when you want to change your current key to a different one.
             </div>
         </div>
 		<div class="card">
@@ -112,7 +115,7 @@
                 <label class="form-check-label"><b>Embed Encryption Key</b></label>
             </div>
             <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
-                <div class="card-text">Custom encryption key to be embedded into the firmware. Future updates will have to be encrypted with this key. Changing key from custom key in installation does require a Compat Patch.</div>
+                <div class="card-text">Custom encryption key to be embedded into the firmware. Future updates will have to be encrypted with this key. Changing key from custom key in installation requires a Model/Key Check Patch.</div>
                 <div class="py-2"></div>
                 <input class="form-control text-center" type="text" name="embed_enc_key">
             </div>
@@ -800,10 +803,44 @@
         ChangeDevice();
     }
 
+    function UdateVisibilityForDevice (dev) {
+        const dkcElTitleNinebot = document.querySelector("#disable_key_check .form-check-label:nth-last-of-type(1)");
+        const dkcElTitleXiaomi = document.querySelector("#disable_key_check .form-check-label:nth-last-of-type(2)");
+        const dkcElInfoNinebot = document.querySelector("#disable_key_check .card-body:nth-last-of-type(1)");
+        const dkcElInfoXiaomi = document.querySelector("#disable_key_check .card-body:nth-last-of-type(2)");
+        switch (dev) {
+            case "pro2":
+            case "1s":
+            case "lite":
+            case "mi3":
+            case "4pro":
+            case "4pro":
+            case "4plus":
+            case "4max":
+                dkcElTitleNinebot.style.display = 'none';
+                dkcElTitleXiaomi.style.display = 'inline';
+                dkcElInfoNinebot.style.display = 'none';
+                dkcElInfoXiaomi.style.display = 'inline';
+                break;
+            case "f2pro":
+            case "f2plus":
+            case "f2":
+            case "g2":
+                dkcElTitleNinebot.style.display = 'inline';
+                dkcElTitleXiaomi.style.display = 'none';
+                dkcElInfoNinebot.style.display = 'inline';
+                dkcElInfoXiaomi.style.display = 'none';
+            default:
+                throw new Error('Unexpected device');
+        }
+    }
+
     function ChangeDevice(){
         Preset_Default();
 
         var dev = document.getElementById("devselect").value;
+
+        UdateVisibilityForDevice(dev);
 
         if (dev === "pro2") {
             Preset_Pro2();
