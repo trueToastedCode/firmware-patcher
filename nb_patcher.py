@@ -19,6 +19,7 @@
 
 from base_patcher import BasePatcher
 from util import FindPattern, SignatureException
+import re
 
 
 class NbPatcher(BasePatcher):
@@ -43,17 +44,40 @@ class NbPatcher(BasePatcher):
         OP: WallyCZ
         Description: Skips key check
         '''
-        sig = [0x40, 0x1c, 0x10, 0x28, None, 0xdb, 0x00, 0x20]
-        ofs = FindPattern(self.data, sig) + 6
+        def find_pattern_wrap(*args, **kwargs):
+            try:
+                return FindPattern(*args, **kwargs)
+            except SignatureException:
+                return -1
 
-        sig = [0xdb, 0x0c, 0xb9, None, 0xf8, 0x05]
-        ofs_dst = FindPattern(self.data, sig, start=ofs) + 1
+        cut_src_sig = [0x40, 0x1c, 0x10, 0x28, None, 0xdb]
+        dst_sig = [0xdb, 0x0c, 0xb9, None, 0xf8, 0x05]
 
-        pre = self.data[ofs:ofs+2]
-        post = self.asm(f'b #{ofs_dst-ofs}')
-        self.data[ofs:ofs+2] = post
+        # previously the terms "skip key check" and "compat patch" have been used interchangeably
+        # make sure the key check doesn't get applied twice
+        # iterate through all patch candidates
+        offset = -len(cut_src_sig)
+        while (offset := find_pattern_wrap(self.data, cut_src_sig, start=offset + len(cut_src_sig))) != -1:
+            patch_offset = offset + 6
 
-        return self.ret("skip_key_check", ofs, pre, post)
+            # assuming this is the correct offset, find the destination
+            try:
+                dst_offset = FindPattern(self.data, dst_sig, start=patch_offset + 2) + 1
+            except SignatureException:
+                continue
+
+            # make sure the skip key check specific branch is not already in place
+            pre = self.data[patch_offset : patch_offset + 2]
+            post = self.asm(f'b #{dst_offset - patch_offset}')
+            if pre == post:
+                raise SignatureException(f'Skip key check already seems to exist at {hex(patch_offset)}')
+
+            # patch if it's the correct patch location
+            if pre == b'\x00\x20':
+                self.data[patch_offset : patch_offset + 2] = post
+                return self.ret("skip_key_check", patch_offset, pre, post)
+
+        raise SignatureException(f'Skip key check pattern not found')
 
     def allow_sn_change(self):
         '''
