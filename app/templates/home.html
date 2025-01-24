@@ -74,6 +74,7 @@
                 <option value="f2plus">F2Plus</option>
                 <option value="f2pro">F2Pro</option>
                 <option value="g2">G2</option>
+                <option value="zt3pro">ZT3 Pro</option>
             </select>
         </div>
     </div>
@@ -797,6 +798,8 @@
             Preset_F2();
         } else if (dev === "g2") {
             Preset_G2();
+        } else if (dev === "zt3pro") {
+            Preset_ZT3Pro();
         }
     }
 
@@ -939,6 +942,12 @@
         GetForm(forms.BAUD).disabled = true;
         GetForm(forms.ECO_MODE).disabled = true;
         GetForm(forms.PNB).disabled = true;
+    }
+
+    function Preset_ZT3Pro() {
+        DisableAll(true);
+
+        GetForm(forms.RFM).disabled = false;
     }
 
     function DisableAll(disable) {
