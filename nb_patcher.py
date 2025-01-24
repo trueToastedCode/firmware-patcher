@@ -29,14 +29,24 @@ class NbPatcher(BasePatcher):
         OP: trueToastedCode
         Description: Embed custom rand code
         '''
+        # convert string to bytes
         assert isinstance(rand_code_str, str)
         rand_code = rand_code_str.strip().encode()
-        assert len(rand_code) == 6
-        sig = [ 0xFE, 0x80, 0x1C, 0xB2, 0xD1, 0xEF, 0x41, 0xA6, 0xA4, 0x17, 0x31, 0xF5, 0xA0, 0x68, 0x24, 0xF0, 0x63, 0x66, 0x77, 0x2e, 0x73, 0x68 ]
-        offset = FindPattern(self.data, sig) + 16
-        pre = self.data[offset : offset + 6]
-        self.data[offset : offset + 6] = rand_code
-        return self.ret('embed_rand_code', offset, pre, rand_code)
+        rand_code_len = 6
+        assert len(rand_code) == rand_code_len
+
+        # verify signature of encryption data at expected location
+        enc_data_offset = 0x400
+        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+            raise SignatureException('Encryption data not found')
+
+        # patch rand code against custom one
+        rand_code_offset = enc_data_offset + 0x30
+        rand_code_slice = slice(rand_code_offset, rand_code_offset + rand_code_len)
+        pre = self.data[rand_code_slice]
+        self.data[rand_code_slice] = rand_code
+        
+        return self.ret('embed_rand_code', rand_code_offset, pre, rand_code)
 
     def embed_enc_key(self, enc_key_str):
         '''
@@ -51,12 +61,12 @@ class NbPatcher(BasePatcher):
 
         # verify signature of encryption data at expected location
         enc_data_offset = 0x400
-        key_offset = enc_data_offset + 0x20
         if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
             raise SignatureException('Encryption data not found')
 
         # patch first occurance of current against custom key
         # (later occurance needs to stay)
+        key_offset = enc_data_offset + 0x20
         key_slice = slice(key_offset, key_offset + keylen)
         pre = self.data[key_slice]
         self.data[key_slice] = enc_key
