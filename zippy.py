@@ -27,7 +27,6 @@ from urllib import request
 import os
 from io import BytesIO
 import fasttea
-from ninebottea import NinebotTEA
 
 
 ROOTPATH = os.path.dirname(os.path.dirname(
@@ -82,8 +81,7 @@ class Zippy():
 
     def encrypt(self, key=None):
         if key:
-            tea = NinebotTEA(key=key)
-            return tea.encrypt(bytes(self.data))
+            return fasttea.encrypt(bytes(self.data), key)
         else:
             return fasttea.encrypt(bytes(self.data))
 
