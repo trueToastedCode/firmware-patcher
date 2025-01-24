@@ -38,6 +38,31 @@ class NbPatcher(BasePatcher):
         self.data[offset : offset + 6] = rand_code
         return self.ret('embed_rand_code', offset, pre, rand_code)
 
+    def embed_enc_key(self, enc_key_str):
+        '''
+        OP: trueToastedCode, Encryptize
+        Description: Replace embedded default encryption key against a custom one
+        '''
+        # convert string to bytes
+        assert isinstance(enc_key_str, str)
+        enc_key = bytes.fromhex(enc_key_str)
+        keylen = 16
+        assert len(enc_key) == keylen
+
+        # verify signature of encryption data at expected location
+        enc_data_offset = 0x400
+        key_offset = enc_data_offset + 0x20
+        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+            raise SignatureException('Encryption data not found')
+
+        # patch first occurance of current against custom key
+        # (later occurance needs to stay)
+        key_slice = slice(key_offset, key_offset + keylen)
+        pre = self.data[key_slice]
+        self.data[key_slice] = enc_key
+
+        return self.ret('embed_enc_key', key_offset, pre, enc_key)
+
     def disable_motor_ntc(self):
         '''
         OP: Turbojeet
