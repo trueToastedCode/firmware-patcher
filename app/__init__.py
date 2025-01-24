@@ -424,7 +424,7 @@ def patch_firmware():
             not res
             and (
                 not custom_enc_key
-                or (custom_enc_key and pod != "Zip")
+                or (custom_enc_key and pod not in ["Zip", ".bin.enc"])
             )
         ):
             return 'No patches applied. Make sure to select the correct input file and at least one patch.'
@@ -442,6 +442,9 @@ def patch_firmware():
             filename += ".zip"
         elif pod == 'Bin':
             filename += ".bin"
+        elif pod == ".bin.enc":
+            data_patched = zippy.encrypt(custom_enc_key)
+            filename += ".bin.enc"
 
         mem.write(data_patched)
         mem.seek(0)
