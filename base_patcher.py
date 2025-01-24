@@ -100,18 +100,22 @@ class BasePatcher():
         # convert string to bytes
         assert isinstance(enc_key_str, str)
         enc_key = bytes.fromhex(enc_key_str)
-        assert len(enc_key) == 16
+        keylen = 16
+        assert len(enc_key) == keylen
 
-        # setup signature which is the default encryption key
-        sig = [ 0xFE, 0x80, 0x1C, 0xB2, 0xD1, 0xEF, 0x41, 0xA6, 0xA4, 0x17, 0x31, 0xF5, 0xA0, 0x68, 0x24, 0xF0 ]
-        default_enc_key = bytes(bytearray(sig))
+        # verify signature of encryption data at expected location
+        enc_data_offset = 0x400
+        key_offset = enc_data_offset + 0x20
+        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+            raise SignatureException('Encryption data not found')
 
-        # patch first occurance of default against custom key
-        # (if present, later occurance needs to stay)
-        offset = FindPattern(self.data, sig)
-        self.data[offset:offset + len(sig)] = enc_key
+        # patch first occurance of current against custom key
+        # (later occurance needs to stay)
+        key_slice = slice(key_offset, key_offset + keylen)
+        pre = self.data[key_slice]
+        self.data[key_slice] = enc_key
 
-        return self.ret('embed_enc_key', offset, default_enc_key, enc_key)
+        return self.ret('embed_enc_key', key_offset, pre, enc_key)
 
     @patch(label="dpc",
            description="Activate/Deactivate DPC via register.",
