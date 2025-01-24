@@ -20,7 +20,7 @@
 from enum import Enum
 import keystone
 import capstone
-from util import FindPattern, SignatureException, sanitize_hex_convert_bytes
+from util import FindPattern, SignatureException
 
 class PatchGroup(Enum):
     GENERAL = "general"
@@ -99,7 +99,7 @@ class BasePatcher():
         '''
         # convert string to bytes
         assert isinstance(enc_key_str, str)
-        enc_key = sanitize_hex_convert_bytes(enc_key_str)
+        enc_key = bytes.fromhex(enc_key_str)
         assert len(enc_key) == 16
 
         # setup signature which is the default encryption key

@@ -28,7 +28,7 @@ import io
 import pathlib
 from mi_patcher import MiPatcher
 from nb_patcher import NbPatcher
-from util import SignatureException, sanitize_hex_convert_bytes
+from util import SignatureException
 from zippy import Zippy
 from datetime import datetime
 
@@ -410,7 +410,7 @@ def patch_firmware():
     custom_enc_key = flask.request.form.get('custom_enc_key', None)
     custom_enc_key = custom_enc_key.strip() if custom_enc_key is not None else None
     if custom_enc_key:
-        custom_enc_key = sanitize_hex_convert_bytes(custom_enc_key)
+        custom_enc_key = bytes.fromhex(custom_enc_key)
         assert len(custom_enc_key) == 16
 
     zippy = Zippy(data, model=dev)
