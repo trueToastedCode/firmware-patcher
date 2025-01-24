@@ -132,6 +132,19 @@
             </div>
         </div>
     </div>
+    <div class="card-group text-center d-grid">
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="embed_rand_code_cb"  onchange="CheckForm('embed_rand_code', this);">
+                <label class="form-check-label"><b>Embed Rand Code</b></label>
+            </div>
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                <div class="card-text">Custom rand code to be embedded into the firmware.</div>
+                <div class="py-2"></div>
+                <input class="form-control text-center" type="text" name="embed_rand_code">
+            </div>
+        </div>
+    <div>
 
     <br/>
     <h5 class="text-center">ESC</h5>
@@ -671,6 +684,7 @@
         "DMN": "dmn",
         "EMBED_ENC_KEY": "embed_enc_key",
         "CUSTOM_ENC_KEY": "custom_enc_key",
+        "EMBED_RAND_CODE": "embed_rand_code",
         "BLM": "blm",
         "BLM_ALM": "blm_alm",
 
@@ -875,6 +889,7 @@
         ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
         ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
         GetForm(forms.DMN).disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_Pro2() {
@@ -884,6 +899,7 @@
         ChangeForm(forms.AMPS_DRIVE_MAX, "32000", false);
         ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
         GetForm(forms.DMN).disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_Lite() {
@@ -897,6 +913,7 @@
 
         GetForm(forms.RFM).disabled = true;
         GetForm(forms.DMN).disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_Mi3() {
@@ -906,6 +923,7 @@
         ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
         ChangeForm(forms.AMPS_BRAKE_MAX, "47000", false);
         GetForm(forms.DMN).disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_4Pro() {
@@ -920,6 +938,7 @@
         GetForm(forms.RML).disabled = true;
         GetForm(forms.BTS).disabled = true;
         GetForm(forms.BLM_ALM).disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_4ProPlus() {
@@ -937,6 +956,7 @@
         GetForm(forms.REMOVE_AUTOBRAKE).disabled = false;
         GetForm(forms.REMOVE_CHARGING_MODE).disabled = false;
         GetForm(forms.VOLT+"_cb").disabled = false;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_F2Pro() {
@@ -978,6 +998,7 @@
         GetForm(forms.AMMETER).disabled = true;
         GetForm(forms.ECO_MODE).disabled = true;
         GetForm(forms.PNB).disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_G2() {
@@ -1012,6 +1033,7 @@
     function DisableAll(disable) {
         GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = disable;
         GetForm(forms.CUSTOM_ENC_KEY+"_cb").disabled = disable;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = disable;
         GetForm(forms.DMN).disabled = disable;
         GetForm(forms.RML).disabled = disable;
         GetForm(forms.BTS).disabled = disable;
@@ -1082,6 +1104,7 @@
         ChangeForm(forms.RML, false);
         ChangeForm(forms.EMBED_ENC_KEY, "FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0", false);
         ChangeForm(forms.CUSTOM_ENC_KEY, "FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0", false);
+        ChangeForm(forms.EMBED_RAND_CODE, "cfw.sh", false);
         ChangeForm(forms.BLM, false);
         ChangeForm(forms.BLM_ALM, false);
 

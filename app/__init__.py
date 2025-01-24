@@ -167,6 +167,11 @@ def patch(data):
         patcher = NbPatcher(data, device)
         is_nb = True
 
+    embed_rand_code = flask.request.form.get('embed_rand_code', None)
+    embed_rand_code = embed_rand_code.strip() if embed_rand_code is not None else None
+    if embed_rand_code:
+        res.append(('EMBED_RAND_CODE', patcher.embed_rand_code(embed_rand_code)))
+
     embed_enc_key = flask.request.form.get('embed_enc_key', None)
     embed_enc_key = embed_enc_key.strip() if embed_enc_key is not None else None
     if embed_enc_key:

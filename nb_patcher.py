@@ -19,12 +19,24 @@
 
 from base_patcher import BasePatcher
 from util import FindPattern, SignatureException
-import re
-
 
 class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
+
+    def embed_rand_code(self, rand_code_str):
+        '''
+        OP: trueToastedCode
+        Description: Embed custom rand code
+        '''
+        assert isinstance(rand_code_str, str)
+        rand_code = rand_code_str.strip().encode()
+        assert len(rand_code) == 6
+        sig = [ 0xFE, 0x80, 0x1C, 0xB2, 0xD1, 0xEF, 0x41, 0xA6, 0xA4, 0x17, 0x31, 0xF5, 0xA0, 0x68, 0x24, 0xF0, 0x63, 0x66, 0x77, 0x2e, 0x73, 0x68 ]
+        offset = FindPattern(self.data, sig) + 16
+        pre = self.data[offset : offset + 6]
+        self.data[offset : offset + 6] = rand_code
+        return self.ret('embed_rand_code', offset, pre, rand_code)
 
     def disable_motor_ntc(self):
         '''
