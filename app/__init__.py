@@ -431,8 +431,8 @@ def patch_firmware():
         params = '\n'.join([x[0] for x in res]) + '\n'
         zippy.params = params
         zippy.data = data_patched
-    except SignatureException:
-        return f'Some of the patches (patcher.{inspect.trace()[-2][3]}()) could not be applied. Please select unmodified input file.'
+    except SignatureException as e:
+        return f'Some of the patches (patcher.{inspect.trace()[-2][3]}()) could not be applied. Please select unmodified input file. Message: {str(e)}'
 
     if pod in ['Bin', 'Zip']:
         filename = f"ngfw_{dev}_{get_datetime()}"
