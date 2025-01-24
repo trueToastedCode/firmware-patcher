@@ -84,8 +84,8 @@
 
     <hr/>
     <h5 class="text-center">FW</h5>
-    <div id="disable_key_check" class="card-group text-center">
-		<div class="card">
+    <div class="card-group text-center">
+		<div id="disable_key_check" class="card">
             <div class="card-header">
                 <input class="form-check-input" type="checkbox" name="rml">
                 <label class="form-check-label"><b>Disable Model Check</b></label><!-- Xiaomi -->
@@ -830,6 +830,7 @@
                 dkcElTitleXiaomi.style.display = 'none';
                 dkcElInfoNinebot.style.display = 'block';
                 dkcElInfoXiaomi.style.display = 'none';
+                break;
             default:
                 throw new Error('Unexpected device');
         }
