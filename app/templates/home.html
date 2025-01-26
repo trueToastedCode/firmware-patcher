@@ -55,6 +55,10 @@
         <p class="text">
         Important notes: This information service is provided free of charge and for personal use only. Commercial use, selling or distributing files, services or parts related to this service is prohibited (see <a href="/disclaimer">disclaimer</a>). If you decide to use any of the information provided here for your project, please add a reference to this site! The source code is available at <a href="https://github.com/dnandha/firmware-patcher">GitHub</a>. 
         </p>
+        <p class="text r">
+            <span class="text-danger">Never apply a patch more than once, as it may damage your controller.</span><br>
+            <span class="text-muted">Notice that firmwares tagged as 'Compat' may not already include a Model/Key Check Patch.</span>
+        </p>
     </div>
 
     <hr>
@@ -81,14 +85,17 @@
     <hr/>
     <h5 class="text-center">FW</h5>
     <div class="card-group text-center">
-		<div class="card">
+		<div id="disable_key_check" class="card">
             <div class="card-header">
                 <input class="form-check-input" type="checkbox" name="rml">
-                <label class="form-check-label"><b>Disable Key/Model Check</b></label>
+                <label class="form-check-label"><b>Disable Model Check</b></label><!-- Xiaomi -->
+                <label class="form-check-label"><b>Disable Key Check</b></label><!-- Ninebot -->
             </div>
-            <div class="card-body">
-                <b>Xiaomi</b>: Some DRVs restrict flashing of DRVs to the ones belonging to the model. This mod disables checks and allows flashing all DRVs (for example: DRV016 to DRV247/SHFW).<br/>
-                <b>Ninebot</b>: Disables the check if the scooter's current encryption key matches the key in the new firmware. It can be useful when you want to change your current key to a different one.
+            <div class="card-body"><!-- Xiaomi -->
+                Some DRVs restrict flashing of DRVs to the ones belonging to the model. This mod disables checks and allows flashing all DRVs (for example: DRV016 to DRV247/SHFW).<br/>
+            </div>
+            <div class="card-body"><!-- Ninebot -->
+                Disables the check if the scooter's current encryption key matches the key in the new firmware. It can be useful when you want to change your current key to a different one.
             </div>
         </div>
 		<div class="card">
@@ -101,6 +108,43 @@
             </div>
         </div>
     </div>
+    <div class="card-group text-center">
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="embed_enc_key_cb" onchange="CheckForm('embed_enc_key', this);">
+                <label class="form-check-label"><b>Embed Encryption Key</b></label>
+            </div>
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                <div class="card-text">Custom encryption key to be embedded into the firmware. Future updates will have to be encrypted with this key. Changing key from custom key in installation requires a Model/Key Check Patch.</div>
+                <div class="py-2"></div>
+                <input class="form-control text-center" type="text" name="embed_enc_key">
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="custom_enc_key_cb" onchange="CheckForm('custom_enc_key', this);">
+                <label class="form-check-label"><b>Custom Encryption Key</b></label>
+            </div>
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                <div class="card-text">Custom encryption key the firmware will be encrypted with. This key has to match the key embedded in the current installation.</div>
+                <div class="py-2"></div>
+                <input class="form-control text-center" type="text" name="custom_enc_key">
+            </div>
+        </div>
+    </div>
+    <div class="card-group text-center d-grid">
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="embed_rand_code_cb"  onchange="CheckForm('embed_rand_code', this);">
+                <label class="form-check-label"><b>Embed Rand Code</b></label>
+            </div>
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                <div class="card-text">Custom rand code to be embedded into the firmware.</div>
+                <div class="py-2"></div>
+                <input class="form-control text-center" type="text" name="embed_rand_code">
+            </div>
+        </div>
+    <div>
 
     <br/>
     <h5 class="text-center">ESC</h5>
@@ -582,6 +626,7 @@
         <div class="col">
             <label id="drvselect" class="custom-file-label">Output:</label>
             <input type="submit" name="patch" value="Bin">
+            <input type="submit" name="patch" value=".bin.enc">
             <input type="submit" name="patch" value="Zip">
             <input type="submit" name="patch" value="Doc">
         </div>
@@ -638,6 +683,9 @@
         "RFM": "rfm",
         "RML": "rml",
         "DMN": "dmn",
+        "EMBED_ENC_KEY": "embed_enc_key",
+        "CUSTOM_ENC_KEY": "custom_enc_key",
+        "EMBED_RAND_CODE": "embed_rand_code",
         "BLM": "blm",
         "BLM_ALM": "blm_alm",
 
@@ -770,10 +818,45 @@
         ChangeDevice();
     }
 
+    function UdateVisibilityForDevice (dev) {
+        const dkcElTitleNinebot = document.querySelector("#disable_key_check .form-check-label:nth-last-of-type(1)");
+        const dkcElTitleXiaomi = document.querySelector("#disable_key_check .form-check-label:nth-last-of-type(2)");
+        const dkcElInfoNinebot = document.querySelector("#disable_key_check .card-body:nth-last-of-type(1)");
+        const dkcElInfoXiaomi = document.querySelector("#disable_key_check .card-body:nth-last-of-type(2)");
+        switch (dev) {
+            case "pro2":
+            case "1s":
+            case "lite":
+            case "mi3":
+            case "4pro":
+            case "4pro":
+            case "4plus":
+            case "4max":
+                dkcElTitleNinebot.style.display = 'none';
+                dkcElTitleXiaomi.style.display = 'inline';
+                dkcElInfoNinebot.style.display = 'none';
+                dkcElInfoXiaomi.style.display = 'block';
+                break;
+            case "f2pro":
+            case "f2plus":
+            case "f2":
+            case "g2":
+                dkcElTitleNinebot.style.display = 'inline';
+                dkcElTitleXiaomi.style.display = 'none';
+                dkcElInfoNinebot.style.display = 'block';
+                dkcElInfoXiaomi.style.display = 'none';
+                break;
+            default:
+                throw new Error('Unexpected device');
+        }
+    }
+
     function ChangeDevice(){
         Preset_Default();
 
         var dev = document.getElementById("devselect").value;
+
+        UdateVisibilityForDevice(dev);
 
         if (dev === "pro2") {
             Preset_Pro2();
@@ -807,6 +890,8 @@
         ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
         ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
         GetForm(forms.DMN).disabled = true;
+        GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_Pro2() {
@@ -816,6 +901,8 @@
         ChangeForm(forms.AMPS_DRIVE_MAX, "32000", false);
         ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
         GetForm(forms.DMN).disabled = true;
+        GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_Lite() {
@@ -829,6 +916,8 @@
 
         GetForm(forms.RFM).disabled = true;
         GetForm(forms.DMN).disabled = true;
+        GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_Mi3() {
@@ -838,6 +927,8 @@
         ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
         ChangeForm(forms.AMPS_BRAKE_MAX, "47000", false);
         GetForm(forms.DMN).disabled = true;
+        GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_4Pro() {
@@ -852,6 +943,8 @@
         GetForm(forms.RML).disabled = true;
         GetForm(forms.BTS).disabled = true;
         GetForm(forms.BLM_ALM).disabled = true;
+        GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
     }
 
     function Preset_4ProPlus() {
@@ -869,6 +962,7 @@
         GetForm(forms.REMOVE_AUTOBRAKE).disabled = false;
         GetForm(forms.REMOVE_CHARGING_MODE).disabled = false;
         GetForm(forms.VOLT+"_cb").disabled = false;
+        GetForm(forms.CUSTOM_ENC_KEY+"_cb").disabled = false;
     }
 
     function Preset_F2Pro() {
@@ -942,6 +1036,9 @@
     }
 
     function DisableAll(disable) {
+        GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = disable;
+        GetForm(forms.CUSTOM_ENC_KEY+"_cb").disabled = disable;
+        GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = disable;
         GetForm(forms.DMN).disabled = disable;
         GetForm(forms.RML).disabled = disable;
         GetForm(forms.BTS).disabled = disable;
@@ -1010,6 +1107,9 @@
         ChangeForm(forms.AMMETER, false);
         ChangeForm(forms.RFM, false);
         ChangeForm(forms.RML, false);
+        ChangeForm(forms.EMBED_ENC_KEY, "FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0", false);
+        ChangeForm(forms.CUSTOM_ENC_KEY, "FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0", false);
+        ChangeForm(forms.EMBED_RAND_CODE, "cfw.sh", false);
         ChangeForm(forms.BLM, false);
         ChangeForm(forms.BLM_ALM, false);
 

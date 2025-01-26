@@ -70,5 +70,3 @@ def NearestConst(x):
             n_dist, n_sign = (dist, sign)\
                 if dist < n_dist else (n_dist, n_sign)
     return x + n_sign * n_dist
-
-

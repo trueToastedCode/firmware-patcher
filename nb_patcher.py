@@ -20,10 +20,58 @@
 from base_patcher import BasePatcher
 from util import FindPattern, SignatureException
 
-
 class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
+
+    def embed_rand_code(self, rand_code_str):
+        '''
+        OP: trueToastedCode
+        Description: Embed custom rand code
+        '''
+        # convert string to bytes
+        assert isinstance(rand_code_str, str)
+        rand_code = rand_code_str.strip().encode()
+        rand_code_len = 6
+        assert len(rand_code) == rand_code_len
+
+        # verify signature of encryption data at expected location
+        enc_data_offset = 0x400
+        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+            raise SignatureException('Encryption data not found')
+
+        # patch rand code against custom one
+        rand_code_offset = enc_data_offset + 0x30
+        rand_code_slice = slice(rand_code_offset, rand_code_offset + rand_code_len)
+        pre = self.data[rand_code_slice]
+        self.data[rand_code_slice] = rand_code
+        
+        return self.ret('embed_rand_code', rand_code_offset, pre, rand_code)
+
+    def embed_enc_key(self, enc_key_str):
+        '''
+        OP: trueToastedCode, Encryptize
+        Description: Replace embedded default encryption key against a custom one
+        '''
+        # convert string to bytes
+        assert isinstance(enc_key_str, str)
+        enc_key = bytes.fromhex(enc_key_str)
+        keylen = 16
+        assert len(enc_key) == keylen
+
+        # verify signature of encryption data at expected location
+        enc_data_offset = 0x400
+        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+            raise SignatureException('Encryption data not found')
+
+        # patch first occurance of current against custom key
+        # (later occurance needs to stay)
+        key_offset = enc_data_offset + 0x20
+        key_slice = slice(key_offset, key_offset + keylen)
+        pre = self.data[key_slice]
+        self.data[key_slice] = enc_key
+
+        return self.ret('embed_enc_key', key_offset, pre, enc_key)
 
     def disable_motor_ntc(self):
         '''
@@ -43,17 +91,40 @@ class NbPatcher(BasePatcher):
         OP: WallyCZ
         Description: Skips key check
         '''
-        sig = [0x40, 0x1c, 0x10, 0x28, None, 0xdb, 0x00, 0x20]
-        ofs = FindPattern(self.data, sig) + 6
+        def find_pattern_wrap(*args, **kwargs):
+            try:
+                return FindPattern(*args, **kwargs)
+            except SignatureException:
+                return -1
 
-        sig = [0xdb, 0x0c, 0xb9, None, 0xf8, 0x05]
-        ofs_dst = FindPattern(self.data, sig, start=ofs) + 1
+        cut_src_sig = [0x40, 0x1c, 0x10, 0x28, None, 0xdb]
+        dst_sig = [0xdb, 0x0c, 0xb9, None, 0xf8, 0x05]
 
-        pre = self.data[ofs:ofs+2]
-        post = self.asm(f'b #{ofs_dst-ofs}')
-        self.data[ofs:ofs+2] = post
+        # previously the terms "skip key check" and "compat patch" have been used interchangeably
+        # make sure the key check doesn't get applied twice
+        # iterate through all patch candidates
+        offset = -len(cut_src_sig)
+        while (offset := find_pattern_wrap(self.data, cut_src_sig, start=offset + len(cut_src_sig))) != -1:
+            patch_offset = offset + 6
 
-        return self.ret("skip_key_check", ofs, pre, post)
+            # assuming this is the correct offset, find the destination
+            try:
+                dst_offset = FindPattern(self.data, dst_sig, start=patch_offset + 2) + 1
+            except SignatureException:
+                continue
+
+            # make sure the skip key check specific branch is not already in place
+            pre = self.data[patch_offset : patch_offset + 2]
+            post = self.asm(f'b #{dst_offset - patch_offset}')
+            if pre == post:
+                raise SignatureException(f'Skip key check already seems to exist at {hex(patch_offset)}')
+
+            # patch if it's the correct patch location
+            if pre == b'\x00\x20':
+                self.data[patch_offset : patch_offset + 2] = post
+                return self.ret("skip_key_check", patch_offset, pre, post)
+
+        raise SignatureException(f'Skip key check pattern not found')
 
     def allow_sn_change(self):
         '''

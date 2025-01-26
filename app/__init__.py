@@ -167,6 +167,16 @@ def patch(data):
         patcher = NbPatcher(data, device)
         is_nb = True
 
+    embed_rand_code = flask.request.form.get('embed_rand_code', None)
+    embed_rand_code = embed_rand_code.strip() if embed_rand_code is not None else None
+    if embed_rand_code:
+        res.append(('EMBED_RAND_CODE', patcher.embed_rand_code(embed_rand_code)))
+
+    embed_enc_key = flask.request.form.get('embed_enc_key', None)
+    embed_enc_key = embed_enc_key.strip() if embed_enc_key is not None else None
+    if embed_enc_key:
+        res.append(('EMBED_ENC_KEY', patcher.embed_enc_key(embed_enc_key)))
+
     dpc = flask.request.form.get('dpc', None)
     if dpc is not None:
         res.append(("DPC", patcher.dpc()))
@@ -397,6 +407,12 @@ def patch_firmware():
     dev = flask.request.form.get('device', None)
     pod = flask.request.form.get('patch', None)
 
+    custom_enc_key = flask.request.form.get('custom_enc_key', None)
+    custom_enc_key = custom_enc_key.strip() if custom_enc_key is not None else None
+    if custom_enc_key:
+        custom_enc_key = bytes.fromhex(custom_enc_key)
+        assert len(custom_enc_key) == 16
+
     zippy = Zippy(data, model=dev)
     if fname.endswith(".bin.enc"):
         zippy.data = zippy.decrypt()
@@ -404,22 +420,31 @@ def patch_firmware():
 
     try:
         res, data_patched = patch(zippy.data)
-        if not res:
+        if (
+            not res
+            and (
+                not custom_enc_key
+                or (custom_enc_key and pod not in ["Zip", ".bin.enc"])
+            )
+        ):
             return 'No patches applied. Make sure to select the correct input file and at least one patch.'
         params = '\n'.join([x[0] for x in res]) + '\n'
         zippy.params = params
         zippy.data = data_patched
-    except SignatureException:
-        return f'Some of the patches (patcher.{inspect.trace()[-2][3]}()) could not be applied. Please select unmodified input file.'
+    except SignatureException as e:
+        return f'Some of the patches (patcher.{inspect.trace()[-2][3]}()) could not be applied. Please select unmodified input file. Message: {str(e)}'
 
     if pod in ['Bin', 'Zip']:
         filename = f"ngfw_{dev}_{get_datetime()}"
         mem = io.BytesIO()
         if pod == 'Zip':
-            data_patched = zippy.zip_it('nice'.encode())
+            data_patched = zippy.zip_it('nice'.encode(), key=custom_enc_key)
             filename += ".zip"
         elif pod == 'Bin':
             filename += ".bin"
+        elif pod == ".bin.enc":
+            data_patched = zippy.encrypt(custom_enc_key)
+            filename += ".bin.enc"
 
         mem.write(data_patched)
         mem.seek(0)
