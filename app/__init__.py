@@ -177,6 +177,9 @@ def patch(data):
     if embed_enc_key:
         res.append(('EMBED_ENC_KEY', patcher.embed_enc_key(embed_enc_key)))
 
+    if flask.request.form.get('allow_sn_change', None):
+        res.append(('Allow SN Change', patcher.allow_sn_change()))
+
     dpc = flask.request.form.get('dpc', None)
     if dpc is not None:
         res.append(("DPC", patcher.dpc()))

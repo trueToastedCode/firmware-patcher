@@ -90,9 +90,15 @@ class BasePatcher():
         raise NotImplementedError()
 
     @patch(label="embed_enc_key",
-           description="Embed custom encryption key.",
+           description="Allows changing the serial number",
            group=PatchGroup.GENERAL)
     def embed_enc_key(self, enc_key_str):
+        raise NotImplementedError()
+
+    @patch(label="allow_sn_change",
+           description="Embed custom encryption key.",
+           group=PatchGroup.GENERAL)
+    def allow_sn_change(self):
         raise NotImplementedError()
 
     @patch(label="dpc",
