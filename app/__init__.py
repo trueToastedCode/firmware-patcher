@@ -443,6 +443,7 @@ def patch_firmware():
         elif pod == 'Bin':
             filename += ".bin"
         elif pod == ".bin.enc":
+            pod = 'Bin'
             data_patched = zippy.encrypt(custom_enc_key)
             filename += ".bin.enc"
 
