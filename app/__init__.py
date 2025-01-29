@@ -434,7 +434,7 @@ def patch_firmware():
     except SignatureException as e:
         return f'Some of the patches (patcher.{inspect.trace()[-2][3]}()) could not be applied. Please select unmodified input file. Message: {str(e)}'
 
-    if pod in ['Bin', 'Zip']:
+    if pod in ['Bin', '.bin.enc', 'Zip']:
         filename = f"ngfw_{dev}_{get_datetime()}"
         mem = io.BytesIO()
         if pod == 'Zip':
