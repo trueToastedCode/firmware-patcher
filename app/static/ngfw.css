@@ -305,11 +305,31 @@ footer a:hover {
     margin-bottom: 1rem;
 }
 
-/* Improve hr styling */
+/* Update hr styling */
 hr {
-    border-color: var(--border-color);
-    margin: 2rem 0;
-    opacity: 0.3;
+    width: 60%;
+    margin: 2rem auto;
+    opacity: 0.5;
+    height: 2px;
+    background: linear-gradient(
+        90deg, 
+        transparent, 
+        var(--primary-color) 20%, 
+        var(--primary-color) 80%, 
+        transparent
+    );
+    border: none;
+}
+
+/* Add a subtle glow effect */
+hr::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: inherit;
+    filter: blur(2px);
+    opacity: 0.7;
+    transform: translateY(-2px);
 }
 
 /* Add these styles for the preset section */
@@ -434,4 +454,48 @@ hr {
 
 .btn-group.gap-2 .btn:not(:last-child) {
     margin-right: 0;
+}
+
+/* Add to existing section-container styles */
+.section-header {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 1.5rem;
+}
+
+.section-header:hover {
+    color: var(--primary-hover);
+}
+
+.section-chevron {
+    position: absolute;
+    right: 0;
+    transition: transform 0.3s ease;
+    font-size: 0.8em;
+    margin-top: 0.2em;
+}
+
+.section-header[aria-expanded="true"] .section-chevron {
+    transform: rotate(180deg);
+}
+
+/* Add subtle animation for collapse */
+.collapse {
+    transition: all 0.2s ease;
+}
+
+.collapsing {
+    transition: all 0.2s ease;
+}
+
+/* Keep section headers consistent */
+.section-container h5.section-header {
+    margin-bottom: 0;
+    padding-bottom: 1.5rem;
+}
+
+.section-container h5.section-header[aria-expanded="true"] {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0;
 } 

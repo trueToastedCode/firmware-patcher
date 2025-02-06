@@ -482,4 +482,32 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set initial state
         header.closest('.card').classList.toggle('checked', checkbox.checked);
     });
+
+    // Add collapse event handlers
+    document.querySelectorAll('.section-header').forEach(header => {
+        header.addEventListener('click', function() {
+            // Toggle the chevron rotation
+            const chevron = this.querySelector('.section-chevron');
+            chevron.style.transform = this.getAttribute('aria-expanded') === 'true' 
+                ? 'rotate(0deg)' 
+                : 'rotate(180deg)';
+        });
+    });
+
+    // Store collapse states in localStorage
+    document.querySelectorAll('.collapse').forEach(collapse => {
+        collapse.addEventListener('show.bs.collapse', function() {
+            localStorage.setItem(this.id, 'expanded');
+        });
+        
+        collapse.addEventListener('hide.bs.collapse', function() {
+            localStorage.setItem(this.id, 'collapsed');
+        });
+
+        // Restore collapse state
+        const state = localStorage.getItem(this.id);
+        if (state === 'expanded') {
+            new bootstrap.Collapse(collapse, { show: true });
+        }
+    });
 }); 
