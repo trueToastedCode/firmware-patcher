@@ -489,8 +489,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Toggle the chevron rotation
             const chevron = this.querySelector('.section-chevron');
             chevron.style.transform = this.getAttribute('aria-expanded') === 'true' 
-                ? 'rotate(0deg)' 
-                : 'rotate(180deg)';
+                ? 'rotate(180deg)' 
+                : 'rotate(0deg)';
         });
     });
 
