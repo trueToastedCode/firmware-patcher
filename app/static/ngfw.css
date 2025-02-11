@@ -1,12 +1,12 @@
 :root {
-    --primary-color: #00ff00;
-    --primary-hover: #00cc00;
+    --primary-color: #00e6b8;  /* Cyan-ish teal - modern, tech feel */
+    --primary-hover: #00b392;  /* Darker shade for hover */
     --bg-dark: #1a1a1a;
     --bg-darker: #141414;
     --bg-card: #2a2a2a;
     --text-color: #e0e0e0;
     --border-color: #333;
-    --glow-shadow: 0 0 10px rgba(0,255,0,0.3);
+    --glow-shadow: 0 0 10px rgba(0,230,184,0.3);  /* Match primary color */
 }
 
 /* Global styles */
@@ -57,7 +57,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,255,0,0.03);
+    background: rgba(0,230,184,0.03);
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: none;
@@ -70,7 +70,7 @@ body {
 /* Style for checked cards */
 .card.checked {
     border-color: var(--primary-color);
-    box-shadow: 0 0 15px rgba(0,255,0,0.2);
+    box-shadow: 0 0 15px rgba(0,230,184,0.2);
 }
 
 /* Prevent text selection on card click */
@@ -263,9 +263,9 @@ footer a:hover {
 
 /* Animations */
 @keyframes glow {
-    0% { box-shadow: 0 0 5px rgba(0,255,0,0.2); }
-    50% { box-shadow: 0 0 20px rgba(0,255,0,0.4); }
-    100% { box-shadow: 0 0 5px rgba(0,255,0,0.2); }
+    0% { box-shadow: 0 0 5px rgba(0,230,184,0.2); }
+    50% { box-shadow: 0 0 20px rgba(0,230,184,0.4); }
+    100% { box-shadow: 0 0 5px rgba(0,230,184,0.2); }
 }
 
 .glow-effect {
@@ -314,8 +314,8 @@ hr {
     background: linear-gradient(
         90deg, 
         transparent, 
-        var(--primary-color) 20%, 
-        var(--primary-color) 80%, 
+        rgba(0,230,184,0.8) 20%, 
+        rgba(0,230,184,0.8) 80%,
         transparent
     );
     border: none;

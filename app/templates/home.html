@@ -13,111 +13,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ngfw.css') }}">
-<!-- Add dark theme support -->
-<style>
-:root {
-    --primary-color: #00ff00;
-    --bg-dark: #1a1a1a;
-    --text-color: #e0e0e0;
-}
-
-body {
-    background: var(--bg-dark);
-    color: var(--text-color);
-}
-
-.card {
-    background: #2a2a2a;
-    border: 1px solid #333;
-}
-
-.card-header {
-    background: #333;
-    border-bottom: 1px solid #444;
-}
-
-.btn-primary {
-    background: var(--primary-color);
-    color: black;
-    border: none;
-}
-
-.btn-primary:hover {
-    background: #00cc00;
-    color: black;
-}
-
-.form-control, .form-select {
-    background: #333;
-    color: var(--text-color);
-    border: 1px solid #444;
-}
-
-.form-control:focus, .form-select:focus {
-    background: #404040;
-    color: var(--text-color);
-}
-
-.modal-content {
-    background: var(--bg-dark);
-}
-
-.display-1 {
-    color: var(--primary-color);
-    text-shadow: 0 0 10px rgba(0,255,0,0.5);
-}
-
-/* Custom slider styling */
-.form-range::-webkit-slider-thumb {
-    background: var(--primary-color);
-}
-
-.form-range::-webkit-slider-runnable-track {
-    background: #333;
-}
-
-/* Add glowing effect to important elements */
-.btn-primary:focus {
-    box-shadow: 0 0 15px rgba(0,255,0,0.5);
-}
-
-.card:hover {
-    box-shadow: 0 0 20px rgba(0,255,0,0.1);
-    transition: all 0.3s ease;
-}
-
-.section-container {
-    background: var(--bg-darker);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid var(--border-color);
-}
-
-.section-container h5 {
-    color: var(--primary-color);
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 1.2rem;
-}
-
-.section-container h5 i {
-    font-size: 1.2em;
-}
-
-/* Update card groups inside sections */
-.section-container .card-group {
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.section-container .card-group:last-child {
-    margin-bottom: 0;
-}
-</style>
 
 <title>NextGen Firmware Toolkit</title>
 </head>
@@ -209,7 +104,7 @@ body {
     <hr/>
     <div class="section-container">
         <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#fw-section">
-            <i class="fas fa-microchip"></i>FW
+            <i class="fas fa-code"></i>FW
             <i class="fas fa-chevron-down section-chevron"></i>
         </h5>
         <div class="collapse" id="fw-section">
@@ -280,7 +175,7 @@ body {
     <br/>
     <div class="section-container">
         <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#esc-section">
-            <i class="fas fa-tachometer-alt"></i>ESC
+            <i class="fas fa-microchip"></i>ESC
             <i class="fas fa-chevron-down section-chevron"></i>
         </h5>
         <div class="collapse" id="esc-section">
@@ -519,7 +414,7 @@ body {
     <br/>
     <div class="section-container">
         <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#limits-section">
-            <i class="fas fa-gauge-high"></i>Limits
+            <i class="fas fa-tachometer-alt"></i>Limits
             <i class="fas fa-chevron-down section-chevron"></i>
         </h5>
         <div class="collapse" id="limits-section">
@@ -699,7 +594,7 @@ body {
     <!-- Hardware Section -->
     <div class="section-container">
         <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#hardware-section">
-            <i class="fas fa-wrench"></i>Hardware
+            <i class="fas fa-hammer"></i>Hardware
             <i class="fas fa-chevron-down section-chevron"></i>
         </h5>
         <div class="collapse" id="hardware-section">
@@ -769,7 +664,9 @@ body {
     <br/>
     <!-- Patch Section -->
     <div class="section-container">
-        <h5 class="text-center"><i class="fas fa-cogs"></i>Build</h5>
+        <h5 class="text-center">
+            <i class="fas fa-cogs"></i>Build
+        </h5>
         <div class="mb-4 text-center">
             <p class="text">
                 <span style="color: red;">&#9888;&nbsp;Warning:&nbsp;</span>
