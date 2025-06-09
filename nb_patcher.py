@@ -150,15 +150,21 @@ class NbPatcher(BasePatcher):
 
     def allow_sn_change(self):
         '''
-        OP: WallyCZ
+        OP: WallyCZ, trueToastedCode
         Description: Allows changing the serial number
         '''
-        sig = self.asm('ldrb.w r0,[r8,#0x4a]')
-        ofs = FindPattern(self.data, sig)
-        pre = self.data[ofs:ofs+4]
-        post = self.asm('mov.w r0, #0x1')
+        if self.model == "zt3pro":
+            sig = self.asm('ldrb.w r1,[r1,#0x24]')
+            ofs = FindPattern(self.data, sig)
+            pre = self.data[ofs:ofs+4]
+            post = self.asm('mov.w r1, #0x1')
+        else:
+            sig = self.asm('ldrb.w r0,[r8,#0x4a]')
+            ofs = FindPattern(self.data, sig)
+            pre = self.data[ofs:ofs+4]
+            post = self.asm('mov.w r0, #0x1')
+            
         self.data[ofs:ofs+4] = post
-
         return self.ret("allow_sn_change", ofs, pre, post)
 
     def region_free(self):

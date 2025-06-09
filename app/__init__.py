@@ -181,6 +181,10 @@ def patch(data):
     if us_region_spoof is not None:
         res.append(("US Region Spoof", patcher.us_region_spoof()))
 
+    allow_sn_change = flask.request.form.get('allow_sn_change', None)
+    if allow_sn_change is not None:
+        res.append(("Allow SN Change", patcher.allow_sn_change()))
+
     dpc = flask.request.form.get('dpc', None)
     if dpc is not None:
         res.append(("DPC", patcher.dpc()))
