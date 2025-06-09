@@ -79,8 +79,11 @@ class Zippy():
                     except:
                         raise Exception("Decode error")
 
-    def encrypt(self):
-        return fasttea.encrypt(bytes(self.data))
+    def encrypt(self, key=None):
+        if key:
+            return fasttea.encrypt(bytes(self.data), key)
+        else:
+            return fasttea.encrypt(bytes(self.data))
 
     def decrypt(self):
         return fasttea.decrypt(bytes(self.data))
@@ -115,7 +118,7 @@ class Zippy():
         }
         return json.dumps(data)
 
-    def zip_it(self, comment, enforce=True):
+    def zip_it(self, comment, enforce=True, key=None):
         md5 = hashlib.md5()
         md5.update(self.data)
 
@@ -124,7 +127,7 @@ class Zippy():
 
         zip_file.writestr('FIRM.bin', self.data)
 
-        enc_data = self.encrypt()
+        enc_data = self.encrypt(key)
         zip_file.writestr('FIRM.bin.enc', enc_data)
         md5e = hashlib.md5()
         md5e.update(enc_data)

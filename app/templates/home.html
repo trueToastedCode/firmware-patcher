@@ -2,15 +2,17 @@
     If you decide to steal this template, at least mention where you got it from.
 -->
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="author" content="D. Nandha">
 <meta name="description" content="NextGen Firmware Toolkit">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='ngfw.ico') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ngfw.css') }}">
 
 <title>NextGen Firmware Toolkit</title>
 </head>
@@ -43,53 +45,82 @@
     </div>
 
 <div class="container">
-    <div class="text-center">
+    <div class="text-center mb-5">
         <h1 class="display-1">NextGen FW</h1>
 
         <p class="lead">
-            Configure your own NextGen firmware (NGFW) by adjusting the options below. <b>Both V3.0 and V3.1 controllers are supported!</b> By default nothing will be patched, enable patches with the checkbox next to them.
+            Configure your own NextGen firmware (NGFW) by adjusting the options below. 
+            <span class="badge bg-success">V3.0 & V3.1 Supported!</span>
         </p>
-        <p class="lead"><span style="color: red;">New: </span>
-            G2, F2-Series and 4Pro-Series support! More patches and features will be added contiously (check page once a while).
+        <p class="lead">
+            <span class="badge bg-danger">New:</span>
+            G2, F2-Series and 4Pro-Series support! More patches and features added continuously.
         </p>
         <p class="text">
-        Important notes: This information service is provided free of charge and for personal use only. Commercial use, selling or distributing files, services or parts related to this service is prohibited (see <a href="/disclaimer">disclaimer</a>). If you decide to use any of the information provided here for your project, please add a reference to this site! The source code is available at <a href="https://github.com/dnandha/firmware-patcher">GitHub</a>. 
+        Important notes: This information service is provided free of charge and for personal use only. Commercial use, selling or distributing files, services or parts related to this service is prohibited (see <a href="/disclaimer">disclaimer</a>). If you decide to use any of the information provided here for your project, please add a reference to this site! The source code is available at <a href="https://github.com/scooterteam/ngfw-patcher">GitHub</a>. 
+        </p>
+        <p class="text r">
+            <span class="text-danger">Never apply a patch more than once, as it may damage your controller.</span><br>
+            <span class="text-muted">Notice that firmwares tagged as 'Compat' may not already include a Model/Key Check Patch.</span>
         </p>
     </div>
 
     <hr>
     <form action="/cfw"  method="POST" enctype="multipart/form-data">
-    <div class="row text-center">
-        <div class="col"><h5>Load Preset</h5></div>
-        <div class="col">
+    <div class="preset-section">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <h5>
+                    <i class="fas fa-sliders-h"></i>
+                    Load Preset
+                </h5>
+            </div>
+            <div class="col-md-8">
+                <div class="preset-select">
             <select class="form-select" id="devselect" name="device" onchange="ChangeDevice()">
+                        <optgroup label="Xiaomi">
                 <option value="1s">1S</option>
                 <option value="pro2">Pro2</option>
                 <option value="lite">Lite/Essential</option>
                 <option value="mi3">Mi3</option>
+                        </optgroup>
+                        <optgroup label="4 Pro Series">
                 <option value="4pro">4Pro</option>
                 <option value="4plus">4ProPlus</option>
                 <option value="4max">4ProMax</option>
+                        </optgroup>
+                        <optgroup label="F/G/Z Series">
                 <option value="f2">F2</option>
                 <option value="f2plus">F2Plus</option>
                 <option value="f2pro">F2Pro</option>
                 <option value="g2">G2</option>
                 <option value="zt3pro">ZT3 Pro</option>
+                        </optgroup>
             </select>
+                </div>
+            </div>
         </div>
     </div>
 
     <hr/>
-    <h5 class="text-center">FW</h5>
+    <div class="section-container">
+        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#fw-section">
+            <i class="fas fa-code"></i>FW
+            <i class="fas fa-chevron-down section-chevron"></i>
+        </h5>
+        <div class="collapse" id="fw-section">
     <div class="card-group text-center">
-		<div class="card">
+		<div id="disable_key_check" class="card">
             <div class="card-header">
                 <input class="form-check-input" type="checkbox" name="rml">
-                <label class="form-check-label"><b>Disable Key/Model Check</b></label>
+                <label class="form-check-label"><b>Disable Model Check</b></label><!-- Xiaomi -->
+                <label class="form-check-label"><b>Disable Key Check</b></label><!-- Ninebot -->
             </div>
-            <div class="card-body">
-                <b>Xiaomi</b>: Some DRVs restrict flashing of DRVs to the ones belonging to the model. This mod disables checks and allows flashing all DRVs (for example: DRV016 to DRV247/SHFW).<br/>
-                <b>Ninebot</b>: Disables the check if the scooter's current encryption key matches the key in the new firmware. It can be useful when you want to change your current key to a different one.
+            <div class="card-body"><!-- Xiaomi -->
+                Some DRVs restrict flashing of DRVs to the ones belonging to the model. This mod disables checks and allows flashing all DRVs (for example: DRV016 to DRV247/SHFW).<br/>
+            </div>
+            <div class="card-body"><!-- Ninebot -->
+                Disables the check if the scooter's current encryption key matches the key in the new firmware. It can be useful when you want to change your current key to a different one.
             </div>
         </div>
 		<div class="card">
@@ -102,9 +133,53 @@
             </div>
         </div>
     </div>
+    <div class="card-group text-center">
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="embed_enc_key_cb" onchange="CheckForm('embed_enc_key', this);">
+                <label class="form-check-label"><b>Embed Encryption Key</b></label>
+            </div>
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                <div class="card-text">Custom encryption key to be embedded into the firmware. Future updates will have to be encrypted with this key. Changing key from custom key in installation requires a Model/Key Check Patch.</div>
+                <div class="py-2"></div>
+                <input class="form-control text-center" type="text" name="embed_enc_key">
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="custom_enc_key_cb" onchange="CheckForm('custom_enc_key', this);">
+                <label class="form-check-label"><b>Custom Encryption Key</b></label>
+            </div>
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                <div class="card-text">Custom encryption key the firmware will be encrypted with. This key has to match the key embedded in the current installation.</div>
+                <div class="py-2"></div>
+                <input class="form-control text-center" type="text" name="custom_enc_key">
+            </div>
+        </div>
+    </div>
+    <div class="card-group text-center d-grid">
+        <div class="card">
+            <div class="card-header">
+                <input class="form-check-input" type="checkbox" name="embed_rand_code_cb"  onchange="CheckForm('embed_rand_code', this);">
+                <label class="form-check-label"><b>Embed Rand Code</b></label>
+            </div>
+            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                <div class="card-text">Custom rand code to be embedded into the firmware.</div>
+                <div class="py-2"></div>
+                <input class="form-control text-center" type="text" name="embed_rand_code">
+            </div>
+        </div>
+            </div>
+        </div>
+    </div>
 
     <br/>
-    <h5 class="text-center">ESC</h5>
+    <div class="section-container">
+        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#esc-section">
+            <i class="fas fa-microchip"></i>ESC
+            <i class="fas fa-chevron-down section-chevron"></i>
+        </h5>
+        <div class="collapse" id="esc-section">
     <div class="card-group text-center">
         <div class="card">
             <div class="card-header">
@@ -238,13 +313,20 @@
 
                 <div class="card-text">
                     Set the three KERS multiplier levels individually. Set value to "0" to turn KERS off. <b>Note:</b> Overrides <b>No KERS</b> mod!
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <br/>
-    <h5 class="text-center">Special</h5>
+    <div class="section-container">
+        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#special-section">
+            <i class="fas fa-magic"></i>Special
+            <i class="fas fa-chevron-down section-chevron"></i>
+        </h5>
+        <div class="collapse" id="special-section">
     <div class="card-group text-center">
 		<div class="card">
             <div class="card-header">
@@ -284,7 +366,7 @@
             <div class="card-body">
                 <div class="card-title">
                     Replaces the blinking backlight by a static backlight on braking (improved version).
-                    When "Auto-Light" is additionaly selected the default backlight brightness is lowered.
+                            When "Auto-Light" is additionally selected the default backlight brightness is lowered.
                 </div>
                 <div class="card-text">
                     <input class="form-check-input" type="checkbox" name="blm_alm">
@@ -323,13 +405,20 @@
                 <div class="card-text">
                     With this mod the battery percentage can only be read out using an app.<br/>
                     <span style="color: red;">&#9888;&nbsp;When charging the dashboard will show a constant "0", but charging works normally.</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <br/>
-    <h5 class="text-center">Limits</h5>
+    <div class="section-container">
+        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#limits-section">
+            <i class="fas fa-tachometer-alt"></i>Limits
+            <i class="fas fa-chevron-down section-chevron"></i>
+        </h5>
+        <div class="collapse" id="limits-section">
     <div class="card-group text-center">
 		<div class="card">
             <div class="card-header">
@@ -496,13 +585,20 @@
                 <div class="card-text">
                     This value defines the maximum current that is substracted, when the brake lever is fully pulled. Decreasing the value will result in the brake being less effective overall! Only decrease if you think the brake is way too strong.<br/>
                     <span style="color: red;">&#9888;&nbsp;Affects SAFETY! Modify at your own risk!!</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <br/>
-    <h5 class="text-center">Hardware</h5>
+    <!-- Hardware Section -->
+    <div class="section-container">
+        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#hardware-section">
+            <i class="fas fa-hammer"></i>Hardware
+            <i class="fas fa-chevron-down section-chevron"></i>
+        </h5>
+        <div class="collapse" id="hardware-section">
     <div class="card-group text-center">
         <div class="card">
             <div class="card-header">
@@ -563,490 +659,104 @@
             </div>
         </div>
     </div>
-    <br/>
-    <hr>
-    <div class="row">
-        <div class="col">
-            <p class="text">
-                <span style="color: red;">&#9888;&nbsp;Warning:&nbsp;</span>
-                Before proceeding, please check all entered values! Select a valid file and press one of the buttons: "Bin" applies the selected patches on the uploaded file and returns the patched file, "Zip" further packs the patched file for flashing, "Doc" generates a full documentation of all selected mods.
-            </p>
         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            <b><label id="drvselect" class="custom-file-label">Select Input File:</label></b>
+
+    <br/>
+    <!-- Patch Section -->
+    <div class="section-container">
+        <h5 class="text-center">
+            <i class="fas fa-cogs"></i>Build
+        </h5>
+        <div class="mb-4 text-center">
+            <p class="text">
+                <span style="color: red;">&#9888;&nbsp;Warning:&nbsp;</span>
+                Before proceeding, please check all entered values! Select a valid file and press one of the buttons:
+            </p>
+            <ul class="text-muted mb-3 list-unstyled">
+                <li><strong>Bin</strong> - applies the selected patches on the uploaded file and returns the patched file</li>
+                <li><strong>Zip</strong> - further packs the patched file for flashing</li>
+                <li><strong>Doc</strong> - generates a full documentation of all selected mods</li>
+            </ul>
         </div>
-        <div class="col">
-            <input type="file" accept=".bin,.zip,.bin.enc" class="custom-file-input" name="filename">
+        <div class="d-flex flex-column align-items-center gap-3">
+            <div class="input-group" style="max-width: 400px;">
+                <span class="input-group-text"><i class="fas fa-file-upload"></i></span>
+                <input type="file" accept=".bin,.zip,.bin.enc" class="form-control" name="filename">
+    </div>
+            <div class="btn-group gap-2">
+                <button type="submit" name="patch" value="Bin" class="btn btn-primary">
+                    <i class="fas fa-file-code me-2"></i>Bin
+                </button>
+                <button type="submit" name="patch" value=".bin.enc" class="btn btn-primary">
+                    <i class="fas fa-lock me-2"></i>.bin.enc
+                </button>
+                <button type="submit" name="patch" value="Zip" class="btn btn-primary">
+                    <i class="fas fa-file-archive me-2"></i>Zip
+                </button>
+                <button type="submit" name="patch" value="Doc" class="btn btn-primary">
+                    <i class="fas fa-file-alt me-2"></i>Doc
+                </button>
         </div>
-        <div class="col">
-            <label id="drvselect" class="custom-file-label">Output:</label>
-            <input type="submit" name="patch" value="Bin">
-            <input type="submit" name="patch" value="Zip">
-            <input type="submit" name="patch" value="Doc">
         </div>
     </div>
     </form>
 
     <hr>
+    <div class="credits-section">
     <div class="row">
-	    <div class="col-sm-2">
-            <h4 class="text-start">Credits</h4>
-        </div>
-        <div class="col">
-            <p class="text">
-            Thanks to the modders at ScooterHacking.org. Many patches are an adaptation of the mods available at https://pro2.cfw.sh/.<br/>
-            Thanks to the German and Spanish communities for additional testing.<br/>
-            Thanks to Encryptize for contributing 4 Pro support.<br/>
-            Thanks to WallyCZ and Encryptize for the awesome colab!<br/>
-            Based on BotoX <a href="https://github.com/BotoX/xiaomi-m365-firmware-patcher" target="_blank">firmware patcher</a>.
+            <div class="col-12">
+                <h4><i class="fas fa-heart me-2"></i>Credits</h4>
+                <div class="credits-content">
+                    <p>
+                        <i class="fas fa-users me-2"></i>Thanks to the modders at 
+                        <a href="https://scooterhacking.org" target="_blank">ScooterHacking.org</a>. 
+                        Many patches are an adaptation of the mods available at 
+                        <a href="https://pro2.cfw.sh/" target="_blank">pro2.cfw.sh</a>.
+                    </p>
+                    <p>
+                        <i class="fas fa-globe me-2"></i>Thanks to the German and Spanish communities for additional testing.
+                    </p>
+                    <p>
+                        <i class="fas fa-code me-2"></i>Thanks to Encryptize for contributing 4 Pro support.
+                    </p>
+                    <p>
+                        <i class="fas fa-star me-2"></i>Thanks to WallyCZ and Encryptize for the awesome collab!
+                    </p>
+                    <p>
+                        <i class="fas fa-code-branch me-2"></i>Based on BotoX 
+                        <a href="https://github.com/BotoX/xiaomi-m365-firmware-patcher" target="_blank">firmware patcher</a>.
             </p>
 	    </div>
-
+            </div>
+        </div>
     </div>
 </div>
 
-<script>
-    var forms = {
-        "VERSION": "version",
-        "DPC": "dpc",
-        "MOTOR_START_SPEED": "motor_start_speed",
-        "REMOVE_KERS": "remove_kers",
-        "REMOVE_AUTOBRAKE": "remove_autobrake",
-        "REMOVE_CHARGING_MODE": "remove_charging_mode",
-        "CC_DELAY": "cc_delay",
-        "CRC": "crc",
-        "WHEELSIZE": "wheelsize",
-        "SHUTDOWN_TIME": "shutdown_time",
-        "SL": "sl_cb",
-        "SL_SPORT": "sl_sport",
-        "SL_DRIVE": "sl_drive",
-        "SL_PED": "sl_ped",
-        "AMPS": "amps_cb",
-        "AMPS_SPORT": "amps_sport",
-        "AMPS_DRIVE": "amps_drive",
-        "AMPS_PED": "amps_ped",
-        "AMPS_MAX": "amps_max_cb",
-        "AMPS_SPORT_MAX": "amps_sport_max",
-        "AMPS_DRIVE_MAX": "amps_drive_max",
-        "AMPS_PED_MAX": "amps_ped_max",
-
-        "AMPS_BRAKE_MIN": "amps_brake_min",
-        "AMPS_BRAKE_MAX": "amps_brake_max",
-
-        "AMMETER": "ammeter",
-        "RFM": "rfm",
-        "RML": "rml",
-        "DMN": "dmn",
-        "BLM": "blm",
-        "BLM_ALM": "blm_alm",
-
-        "BAUD": "baud",
-        "VOLT": "volt",
-
-        "ECO_MODE": "eco_mode",
-        "PNB": "pnb",
-        "BTS": "bts",
-
-        "KML": "kml",
-        "KML_L0": "kml_l0",
-        "KML_L1": "kml_l1",
-        "KML_L2": "kml_l2",
-    };
-
-    var formValues = Object.values(forms);
-    var queryStrings = window.location.search.substring(1);
-    var queries = queryStrings.split('&');
-
-    for (var i = 0; i < queries.length; i++) {
-        var query = queries[i];
-        var tmp = query.split('=');
-        var found = false;
-
-        for (var j = 0; j < formValues.length; j++) {
-            if (formValues[j] === tmp[0]) {
-                found = true;
-                break;
-            }
-        }
-
-        if(found) {
-            if (tmp[1] === 'on') {
-                tmp[1] = true;
-            }
-
-            ChangeForm(tmp[0], tmp[1], true);
-        }
-    }
-
-    function OnSliderChange(elname, value) {
-        var ws_val = document.getElementById(elname);
-        ws_val.innerHTML = value;
-    }
-
-    function Round(value) {
-	    return Math.round(value * 10) / 10;
-    }
-
-    function SliderUp(name, valuename) {
-	    var slider = document.getElementsByName(name)[0];
-	    if (slider.disabled) {
-		    return;
-	    }
-	    const value = Round(parseFloat(slider.value) + parseFloat(slider.step));
-
-	    slider.value = value
-
-	    OnSliderChange(valuename, value);
-    }
-
-    function SliderDown(name, valuename) {
-	    var slider = document.getElementsByName(name)[0];
-	    if (slider.disabled) {
-		    return;
-	    }
-	    const value = Round(parseFloat(slider.value) - parseFloat(slider.step));
-
-	    slider.value = value
-
-	    OnSliderChange(valuename, value);
-    }
-
-    function GetForm(name) {
-        return document.getElementsByName(name)[0];
-    }
-
-    function GetFormValue(name) {
-        var o = GetForm(name);
-
-        if (o.type === "checkbox") {
-            return o.checked;
-        }
-
-        return o.value;
-    }
-
-    function GetPatchCheckBox(name) {
-        return GetForm(`${name}_cb`);
-    }
-
-    function CheckForm(name, cb) {
-        var o = GetForm(name);
-        if (o.value != 0) {
-            // temp
-            var dev = document.getElementById("devselect").value;
-            if (dev == '4pro' && name == forms.BLM_ALM) {
-                return
-            }
-
-            o.disabled = !cb.checked;
-        }
-    }
-
-    function ChangeForm(name, value, patch) {
-        var o = GetForm(name);
-
-        if (o.type === "checkbox") {
-            o.checked = value;
-        } else {
-            o.value = value;
-        }
-        if(o.onchange) { o.onchange(); }
-
-        if (typeof patch === 'boolean') {
-            var cb = GetPatchCheckBox(name);
-
-            if (cb) {
-                cb.checked = patch;
-                if(cb.onchange) { cb.onchange(); }
-            }
-        }
-    }
-
-    function OnLoad(){
-        var warning = new bootstrap.Modal(document.getElementById('disclaimer'));
-        warning.show();
-    
-        ChangeDevice();
-    }
-
-    function ChangeDevice(){
-        Preset_Default();
-
-        var dev = document.getElementById("devselect").value;
-
-        if (dev === "pro2") {
-            Preset_Pro2();
-        } else if (dev === "1s") {
-            Preset_1S();
-        } else if (dev === "lite") {
-            Preset_Lite();
-        } else if (dev === "mi3") {
-            Preset_Mi3();
-        } else if (dev === "4pro") {
-            Preset_4Pro();
-        } else if (dev === "4plus") {
-            Preset_4ProPlus();
-        } else if (dev === "4max") {
-            Preset_4ProMax();
-        } else if (dev === "f2pro") {
-            Preset_F2Pro();
-        } else if (dev === "f2plus") {
-            Preset_F2Plus();
-        } else if (dev === "f2") {
-            Preset_F2();
-        } else if (dev === "g2") {
-            Preset_G2();
-        } else if (dev === "zt3pro") {
-            Preset_ZT3Pro();
-        }
-    }
-
-    function Preset_1S() {
-        ChangeForm(forms.AMPS_SPORT, "20000", false);
-        ChangeForm(forms.AMPS_DRIVE, "15000", false);
-        ChangeForm(forms.AMPS_SPORT_MAX, "35000", false);
-        ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
-        ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
-        GetForm(forms.DMN).disabled = true;
-    }
-
-    function Preset_Pro2() {
-        ChangeForm(forms.AMPS_SPORT, "25000", false);
-        ChangeForm(forms.AMPS_DRIVE, "17000", false);
-        ChangeForm(forms.AMPS_SPORT_MAX, "55000", false);
-        ChangeForm(forms.AMPS_DRIVE_MAX, "32000", false);
-        ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
-        GetForm(forms.DMN).disabled = true;
-    }
-
-    function Preset_Lite() {
-        ChangeForm(forms.SL_SPORT, "20", false);
-        ChangeForm(forms.SL_DRIVE, "15", false);
-        ChangeForm(forms.AMPS_SPORT, "17000", false);
-        ChangeForm(forms.AMPS_DRIVE, "0", false);
-        ChangeForm(forms.AMPS_SPORT_MAX, "32000", false);
-        ChangeForm(forms.AMPS_DRIVE_MAX, "0", false);
-        ChangeForm(forms.AMPS_BRAKE_MAX, "22000", false);
-
-        GetForm(forms.RFM).disabled = true;
-        GetForm(forms.DMN).disabled = true;
-    }
-
-    function Preset_Mi3() {
-        ChangeForm(forms.AMPS_SPORT, "26500", false);
-        ChangeForm(forms.AMPS_DRIVE, "15000", false);
-        ChangeForm(forms.AMPS_SPORT_MAX, "55000", false);
-        ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
-        ChangeForm(forms.AMPS_BRAKE_MAX, "47000", false);
-        GetForm(forms.DMN).disabled = true;
-    }
-
-    function Preset_4Pro() {
-        ChangeForm(forms.AMPS_SPORT, "26500", false);
-        ChangeForm(forms.AMPS_DRIVE, "19000", false);
-        ChangeForm(forms.AMPS_SPORT_MAX, "55000", false);
-        ChangeForm(forms.AMPS_DRIVE_MAX, "35000", false);
-        ChangeForm(forms.AMPS_BRAKE_MAX, "57000", false);
-        ChangeForm(forms.WHEELSIZE, "10.0", false);
-
-        GetForm(forms.DMN).disabled = true;
-        GetForm(forms.RML).disabled = true;
-        GetForm(forms.BTS).disabled = true;
-        GetForm(forms.BLM_ALM).disabled = true;
-    }
-
-    function Preset_4ProPlus() {
-        Preset_4ProMax();
-    }
-
-    function Preset_4ProMax() {
-        DisableAll(true);
-
-        ChangeForm(forms.VOLT, "60.01", false);
-
-        GetForm(forms.CC_DELAY+"_cb").disabled = false;
-        GetForm(forms.RFM).disabled = false;
-        GetForm(forms.SL).disabled = false;
-        GetForm(forms.REMOVE_AUTOBRAKE).disabled = false;
-        GetForm(forms.REMOVE_CHARGING_MODE).disabled = false;
-        GetForm(forms.VOLT+"_cb").disabled = false;
-    }
-
-    function Preset_F2Pro() {
-        Preset_F2Base();
-        ChangeForm(forms.AMPS_DRIVE, "20000", false);
-        ChangeForm(forms.AMPS_SPORT, "28000", false);
-    }
-
-    function Preset_F2Plus() {
-        Preset_F2Base();
-        ChangeForm(forms.AMPS_SPORT, "26000", false);
-    }
-
-    function Preset_F2() {
-        Preset_F2Base();
-        ChangeForm(forms.AMPS_SPORT, "24000", false);
-    }
-
-    function Preset_F2Base() {
-        ChangeForm(forms.SL_SPORT, "25", false);
-        ChangeForm(forms.SL_DRIVE, "20", false);
-        ChangeForm(forms.SL_PED, "15", false);
-        ChangeForm(forms.AMPS_PED, "9000", false);
-        ChangeForm(forms.AMPS_DRIVE, "18000", false);
-        ChangeForm(forms.AMPS_PED_MAX, "30000", false);
-        ChangeForm(forms.AMPS_DRIVE_MAX, "40000", false);
-        ChangeForm(forms.AMPS_SPORT_MAX, "72000", false);
-        ChangeForm(forms.WHEELSIZE, "10.0", false);
-        ChangeForm(forms.VOLT, "45.01", false);
-
-        GetForm(forms.BTS).disabled = true;
-        GetForm(forms.BLM).disabled = true;
-        GetForm(forms.MOTOR_START_SPEED+"_cb").disabled = true;
-        GetForm(forms.CRC+"_cb").disabled = true;
-        GetForm(forms.WHEELSIZE+"_cb").disabled = true;
-        GetForm(forms.SHUTDOWN_TIME+"_cb").disabled = true;
-        GetForm(forms.AMPS_BRAKE_MIN+"_cb").disabled = true;
-        GetForm(forms.AMPS_BRAKE_MAX+"_cb").disabled = true;
-        GetForm(forms.AMMETER).disabled = true;
-        GetForm(forms.ECO_MODE).disabled = true;
-        GetForm(forms.PNB).disabled = true;
-    }
-
-    function Preset_G2() {
-        ChangeForm(forms.SL_SPORT, "25", false);
-        ChangeForm(forms.SL_DRIVE, "20", false);
-        ChangeForm(forms.SL_PED, "15", false);
-        ChangeForm(forms.AMPS_PED, "8000", false);
-        ChangeForm(forms.AMPS_DRIVE, "17000", false);
-        ChangeForm(forms.AMPS_SPORT, "32340", false);
-        ChangeForm(forms.AMPS_PED_MAX, "35000", false);
-        ChangeForm(forms.AMPS_DRIVE_MAX, "55000", false);
-        ChangeForm(forms.AMPS_SPORT_MAX, "80000", false);
-        ChangeForm(forms.WHEELSIZE, "10.0", false);
-        ChangeForm(forms.VOLT, "45.01", false);
-
-        GetForm(forms.BTS).disabled = true;
-        GetForm(forms.BLM).disabled = true;
-        GetForm(forms.MOTOR_START_SPEED+"_cb").disabled = true;
-        GetForm(forms.CRC+"_cb").disabled = true;
-        GetForm(forms.CC_DELAY+"_cb").disabled = true;
-        GetForm(forms.KML).disabled = true;
-        GetForm(forms.WHEELSIZE+"_cb").disabled = true;
-        GetForm(forms.SHUTDOWN_TIME+"_cb").disabled = true;
-        GetForm(forms.AMPS_BRAKE_MIN+"_cb").disabled = true;
-        GetForm(forms.AMPS_BRAKE_MAX+"_cb").disabled = true;
-        GetForm(forms.AMMETER).disabled = true;
-        GetForm(forms.BAUD).disabled = true;
-        GetForm(forms.ECO_MODE).disabled = true;
-        GetForm(forms.PNB).disabled = true;
-    }
-
-    function Preset_ZT3Pro() {
-        DisableAll(true);
-
-        GetForm(forms.RFM).disabled = false;
-    }
-
-    function DisableAll(disable) {
-        GetForm(forms.DMN).disabled = disable;
-        GetForm(forms.RML).disabled = disable;
-        GetForm(forms.BTS).disabled = disable;
-        GetForm(forms.BLM).disabled = disable;
-        GetForm(forms.DPC).disabled = disable;
-        GetForm(forms.MOTOR_START_SPEED+"_cb").disabled = disable;
-        GetForm(forms.REMOVE_AUTOBRAKE).disabled = disable;
-        GetForm(forms.REMOVE_CHARGING_MODE).disabled = disable;
-        GetForm(forms.REMOVE_KERS).disabled = disable;
-        GetForm(forms.CC_DELAY+"_cb").disabled = disable;
-        GetForm(forms.CRC+"_cb").disabled = disable;
-        GetForm(forms.WHEELSIZE+"_cb").disabled = disable;
-        GetForm(forms.SHUTDOWN_TIME+"_cb").disabled = disable;
-        GetForm(forms.AMPS).disabled = disable;
-        GetForm(forms.AMPS_MAX).disabled = disable;
-        GetForm(forms.AMPS_BRAKE_MIN+"_cb").disabled = disable;
-        GetForm(forms.AMPS_BRAKE_MAX+"_cb").disabled = disable;
-        GetForm(forms.AMMETER).disabled = disable;
-        GetForm(forms.VOLT+"_cb").disabled = disable;
-        GetForm(forms.BAUD).disabled = disable;
-        GetForm(forms.ECO_MODE).disabled = disable;
-        GetForm(forms.PNB).disabled = disable;
-        GetForm(forms.KML).disabled = disable;
-    }
-
-    function Ped_To_Eco(cb) {
-        if (!GetFormValue(forms.SL)) {
-            CheckForm(forms.SL_PED, cb);
-        }
-        if (!GetFormValue(forms.AMPS)) {
-            CheckForm(forms.AMPS_PED, cb);
-        }
-        if (!GetFormValue(forms.AMPS_MAX)) {
-            CheckForm(forms.AMPS_PED_MAX, cb);
-        }
-        ChangeForm(forms.PNB, cb.checked);
-        if (cb.checked) {
-            ChangeForm(forms.SL_PED, "15", false);
-            ChangeForm(forms.AMPS_PED, "13000", false);
-            ChangeForm(forms.AMPS_PED_MAX, "26000", false);
-        }
-    }
-
-    function Preset_Default() {
-        DisableAll(false);
-
-        ChangeForm(forms.DPC, false);
-        ChangeForm(forms.MOTOR_START_SPEED, "5.0", false);
-        ChangeForm(forms.REMOVE_AUTOBRAKE, false);
-        ChangeForm(forms.REMOVE_KERS, false);
-        ChangeForm(forms.REMOVE_CHARGING_MODE, false);
-        ChangeForm(forms.CC_DELAY, "5", false);
-        ChangeForm(forms.CRC, "300", false);
-        ChangeForm(forms.WHEELSIZE, "8.5", false);
-        ChangeForm(forms.SHUTDOWN_TIME, "3.0", false);
-        ChangeForm(forms.SL, false);
-        ChangeForm(forms.SL_SPORT, "25", false);
-        ChangeForm(forms.SL_DRIVE, "20", false);
-        ChangeForm(forms.SL_PED, "5", false);
-        ChangeForm(forms.AMPS, false);
-        ChangeForm(forms.AMPS_MAX, false);
-        ChangeForm(forms.AMPS_PED, "7000", false);
-        ChangeForm(forms.AMPS_PED_MAX, "8000", false);
-        ChangeForm(forms.AMPS_BRAKE_MIN, "8000", false);
-		
-        ChangeForm(forms.AMMETER, false);
-        ChangeForm(forms.RFM, false);
-        ChangeForm(forms.RML, false);
-        ChangeForm(forms.BLM, false);
-        ChangeForm(forms.BLM_ALM, false);
-
-        ChangeForm(forms.BAUD, false);
-        ChangeForm(forms.VOLT, "43.01", false);
-
-        ChangeForm(forms.ECO_MODE, false);
-        ChangeForm(forms.PNB, false);
-        ChangeForm(forms.BTS, false);
-
-        ChangeForm(forms.KML, false);
-        ChangeForm(forms.KML_L0, "6", null);
-        ChangeForm(forms.KML_L1, "12", null);
-        ChangeForm(forms.KML_L2, "20", null);
-    }
-</script>
-
+<!-- Move scripts to bottom -->
+<script src="{{ url_for('static', filename='ngfw.js') }}"></script>
 <script src="{{ url_for('static', filename='popper.min.js') }}"></script>
 <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
 </body>
-<footer class="text-center">
-    <p>---------- NGFW Counter ----------<br/>
-    Bin: {{ counts['bin'] }} | Zip: {{ counts['zip'] }} | Doc: {{ counts['doc'] }}</p>
-    <p>----------- GIT Summary ----------<br/>
-    {{ gitinfo['date'] }}: {{ gitinfo['summary'] }}<br/>
-    [Commit: {{ gitinfo['sha'] }}]</p>
-    <a href="/privacy">Privacy</a>
-    <a href="/disclaimer">Disclaimer</a>
+<footer class="text-center text-muted mt-5 py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h6>NGFW Counter</h6>
+                <p>Bin: {{ counts['bin'] }} | Zip: {{ counts['zip'] }} | Doc: {{ counts['doc'] }}</p>
+            </div>
+            <div class="col-md-4">
+                <h6>Latest Update</h6>
+                <p>{{ gitinfo['date'] }}: {{ gitinfo['summary'] }}<br>
+                <small>[{{ gitinfo['sha'] }}]</small></p>
+            </div>
+            <div class="col-md-4">
+                <h6>Links</h6>
+                <a href="/privacy" class="text-muted me-3">Privacy</a>
+                <a href="/disclaimer" class="text-muted">Disclaimer</a>
+            </div>
+        </div>
+    </div>
 </footer>
 </html>

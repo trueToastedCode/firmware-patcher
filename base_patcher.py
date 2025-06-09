@@ -20,6 +20,7 @@
 from enum import Enum
 import keystone
 import capstone
+from util import FindPattern, SignatureException
 
 class PatchGroup(Enum):
     GENERAL = "general"
@@ -81,6 +82,18 @@ class BasePatcher():
 
     def ret(self, descr, ofs, pre, post):
         return [(descr, hex(ofs), pre.hex(), post.hex())]
+
+    @patch(label="embed_rand_code",
+           description="Embed custom rand code.",
+           group=PatchGroup.GENERAL)
+    def embed_rand_code(self, rand_code_str):
+        raise NotImplementedError()
+
+    @patch(label="embed_enc_key",
+           description="Embed custom encryption key.",
+           group=PatchGroup.GENERAL)
+    def embed_enc_key(self, enc_key_str):
+        raise NotImplementedError()
 
     @patch(label="dpc",
            description="Activate/Deactivate DPC via register.",
