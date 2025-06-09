@@ -91,7 +91,7 @@ class NbPatcher(BasePatcher):
             post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
             self.data[patch_slice] = post
 
-            return self.ret("region_free", ofs_from, pre, post)
+            return self.ret("us_region_spoof", ofs_from, pre, post)
 
         return []
     
