@@ -173,6 +173,17 @@ class NbPatcher(BasePatcher):
                 post = self.asm("movs r0, #0x6")
                 self.data[ofs_dst:ofs_dst+2] = post
                 res += self.ret("region_free_1", ofs_dst, pre, post)
+        elif self.model == "zt3pro":
+            sig = [0xC0, 0x78, 0x45, 0x28]
+            ofs = FindPattern(self.data, sig)
+
+            sig = [0x03, 0x20, 0xC8, 0x70, 0x4A, 0x70]
+            ofs_dst = FindPattern(self.data, sig, start=ofs)
+
+            pre = self.data[ofs:ofs+2]
+            post = self.asm(f"b {ofs_dst-ofs}")
+            self.data[ofs:ofs+2] = post
+            res += self.ret("region_free", ofs, pre, post)
         else:
             sig = self.asm('cmp r0, #0x4e')
             ofs = FindPattern(self.data, sig, start=0x8000) + len(sig)
