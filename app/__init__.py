@@ -20,18 +20,18 @@
 # Optional MYSQL and 'flask_mysql' module for click counter
 #####
 
-import flask
-import traceback
-import os
 import inspect
 import io
+import os
 import pathlib
+import traceback
+from datetime import datetime
+
+import flask
 from mi_patcher import MiPatcher
 from nb_patcher import NbPatcher
 from util import SignatureException
 from zippy import Zippy
-from datetime import datetime
-
 
 pwd = pathlib.Path(__file__).parent.parent.resolve()
 
@@ -39,8 +39,8 @@ app = flask.Flask(__name__)
 
 mysql = None
 try:
-    from flask_mysqldb import MySQL
     from conf import config
+    from flask_mysqldb import MySQL
 
     app.config.update(config)
 
@@ -176,6 +176,10 @@ def patch(data):
     embed_enc_key = embed_enc_key.strip() if embed_enc_key is not None else None
     if embed_enc_key:
         res.append(('EMBED_ENC_KEY', patcher.embed_enc_key(embed_enc_key)))
+
+    us_region_spoof = flask.request.form.get('us_region_spoof', None)
+    if us_region_spoof is not None:
+        res.append(("US Region Spoof", patcher.us_region_spoof()))
 
     dpc = flask.request.form.get('dpc', None)
     if dpc is not None:

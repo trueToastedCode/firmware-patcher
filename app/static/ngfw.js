@@ -31,6 +31,7 @@ const forms = {
     "EMBED_ENC_KEY": "embed_enc_key",
     "CUSTOM_ENC_KEY": "custom_enc_key",
     "EMBED_RAND_CODE": "embed_rand_code",
+    "US_REGION_SPOOF": "us_region_spoof",
     "BLM": "blm",
     "BLM_ALM": "blm_alm",
     "BAUD": "baud",
@@ -205,9 +206,11 @@ function Preset_1S() {
     ChangeForm(forms.AMPS_SPORT_MAX, "35000", false);
     ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
     ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
     GetForm(forms.DMN).disabled = true;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_Pro2() {
@@ -216,9 +219,11 @@ function Preset_Pro2() {
     ChangeForm(forms.AMPS_SPORT_MAX, "55000", false);
     ChangeForm(forms.AMPS_DRIVE_MAX, "32000", false);
     ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
     GetForm(forms.DMN).disabled = true;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_Lite() {
@@ -229,10 +234,12 @@ function Preset_Lite() {
     ChangeForm(forms.AMPS_SPORT_MAX, "32000", false);
     ChangeForm(forms.AMPS_DRIVE_MAX, "0", false);
     ChangeForm(forms.AMPS_BRAKE_MAX, "22000", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
     GetForm(forms.RFM).disabled = true;
     GetForm(forms.DMN).disabled = true;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_Mi3() {
@@ -241,9 +248,11 @@ function Preset_Mi3() {
     ChangeForm(forms.AMPS_SPORT_MAX, "55000", false);
     ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
     ChangeForm(forms.AMPS_BRAKE_MAX, "47000", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
     GetForm(forms.DMN).disabled = true;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_4Pro() {
@@ -253,12 +262,14 @@ function Preset_4Pro() {
     ChangeForm(forms.AMPS_DRIVE_MAX, "35000", false);
     ChangeForm(forms.AMPS_BRAKE_MAX, "57000", false);
     ChangeForm(forms.WHEELSIZE, "10.0", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
     GetForm(forms.DMN).disabled = true;
     GetForm(forms.RML).disabled = true;
     GetForm(forms.BTS).disabled = true;
     GetForm(forms.BLM_ALM).disabled = true;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_4ProPlus() {
@@ -268,6 +279,7 @@ function Preset_4ProPlus() {
 function Preset_4ProMax() {
     DisableAll(true);
     ChangeForm(forms.VOLT, "60.01", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
     GetForm(forms.CC_DELAY + "_cb").disabled = false;
     GetForm(forms.RFM).disabled = false;
     GetForm(forms.SL).disabled = false;
@@ -275,6 +287,7 @@ function Preset_4ProMax() {
     GetForm(forms.REMOVE_CHARGING_MODE).disabled = false;
     GetForm(forms.VOLT + "_cb").disabled = false;
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_F2Pro() {
@@ -304,6 +317,7 @@ function Preset_F2Base() {
     ChangeForm(forms.AMPS_SPORT_MAX, "72000", false);
     ChangeForm(forms.WHEELSIZE, "10.0", false);
     ChangeForm(forms.VOLT, "45.01", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
 
     GetForm(forms.BTS).disabled = true;
     GetForm(forms.BLM).disabled = true;
@@ -316,6 +330,7 @@ function Preset_F2Base() {
     GetForm(forms.AMMETER).disabled = true;
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_G2() {
@@ -330,6 +345,7 @@ function Preset_G2() {
     ChangeForm(forms.AMPS_SPORT_MAX, "80000", false);
     ChangeForm(forms.WHEELSIZE, "10.0", false);
     ChangeForm(forms.VOLT, "45.01", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
 
     GetForm(forms.BTS).disabled = true;
     GetForm(forms.BLM).disabled = true;
@@ -345,11 +361,13 @@ function Preset_G2() {
     GetForm(forms.BAUD).disabled = true;
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_ZT3Pro() {
     DisableAll(true);
     GetForm(forms.RFM).disabled = false;
+    GetForm(forms.US_REGION_SPOOF).disabled = false;
 }
 
 function DisableAll(disable) {
@@ -379,6 +397,7 @@ function DisableAll(disable) {
     GetForm(forms.ECO_MODE).disabled = disable;
     GetForm(forms.PNB).disabled = disable;
     GetForm(forms.KML).disabled = disable;
+    GetForm(forms.US_REGION_SPOOF).disabled = disable;
 }
 
 function Ped_To_Eco(cb) {
@@ -517,4 +536,4 @@ document.addEventListener('DOMContentLoaded', function () {
             new bootstrap.Collapse(collapse, { show: true });
         }
     });
-}); 
+});

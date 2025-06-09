@@ -20,6 +20,7 @@
 from base_patcher import BasePatcher
 from util import FindPattern, SignatureException
 
+
 class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
@@ -73,6 +74,27 @@ class NbPatcher(BasePatcher):
 
         return self.ret('embed_enc_key', key_offset, pre, enc_key)
 
+    def us_region_spoof(self):
+        '''
+        OP: trueToastedCode
+        Description: Spoof region always to be US
+        '''
+        if self.model == "zt3pro":
+            sig_from = [ 0x01, 0x22, 0x31, 0x2c, None, None, 0x44, 0x78, 0x4b, 0x2c, None, None, 0x84, 0x78, 0x31, 0x2c ]
+            ofs_from = FindPattern(self.data, sig_from) + 0x10
+
+            sig_to = [ 0x03, 0x20, 0xc8, 0x70, 0x4a, 0x70 ]
+            ofs_to = FindPattern(self.data, sig_to, start=ofs_from + 2)
+
+            patch_slice = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_slice]
+            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
+            self.data[patch_slice] = post
+
+            return self.ret("region_free", ofs_from, pre, post)
+
+        return []
+    
     def disable_motor_ntc(self):
         '''
         OP: Turbojeet
