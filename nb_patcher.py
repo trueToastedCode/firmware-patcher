@@ -114,8 +114,8 @@ class NbPatcher(BasePatcher):
 
             switch_case_offsets = self.data[ofs_switch_case_to : ofs_switch_case_to + 0x9]
 
-            # 'Z' for case USA
-            target_case = ord('Z') - ord('T')
+            # 'X' for case USA
+            target_case = ord('X') - ord('T')
             ofs_to = ofs_switch_case_to + switch_case_offsets[target_case] * 2
 
             patch_slice = slice(ofs_from, ofs_from + 2)
