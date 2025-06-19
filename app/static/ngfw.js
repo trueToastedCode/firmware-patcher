@@ -362,7 +362,6 @@ function Preset_G2() {
     GetForm(forms.BAUD).disabled = true;
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
-    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_ZT3Pro() {
