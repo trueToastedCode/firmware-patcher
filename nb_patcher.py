@@ -44,7 +44,8 @@ class NbPatcher(BasePatcher):
         if scooter_enc_id not in [
             b'NineBotScooter',
             b'SCOOTER_VCU_xxU2',
-            b'SCOOTER_VCU_xxG3'
+            b'SCOOTER_VCU_xxG3',
+            b'SCOOTER_VCU_xxF3'
         ]:
             raise SignatureException('Encryption data not found')
 
@@ -75,7 +76,8 @@ class NbPatcher(BasePatcher):
         if scooter_enc_id not in [
             b'NineBotScooter',
             b'SCOOTER_VCU_xxU2',
-            b'SCOOTER_VCU_xxG3'
+            b'SCOOTER_VCU_xxG3',
+            b'SCOOTER_VCU_xxF3'
         ]:
             raise SignatureException('Encryption data not found')
 
@@ -209,6 +211,8 @@ class NbPatcher(BasePatcher):
         while (offset := find_pattern_wrap(self.data, cut_src_sig, start=offset + len(cut_src_sig))) != -1:
             patch_offset = offset + 6
 
+            print(hex(patch_offset))
+
             # assuming this is the correct offset, find the destination
             try:
                 dst_offset = FindPattern(self.data, dst_sig, start=patch_offset + 2) + 1
@@ -217,12 +221,13 @@ class NbPatcher(BasePatcher):
 
             # make sure the skip key check specific branch is not already in place
             pre = self.data[patch_offset : patch_offset + 2]
+            pre_test_alternative = self.data[patch_offset + 2 : patch_offset + 4]
             post = self.asm(f'b #{dst_offset - patch_offset}')
             if pre == post:
                 raise SignatureException(f'Skip key check already seems to exist at {hex(patch_offset)}')
 
             # patch if it's the correct patch location
-            if pre == b'\x00\x20':
+            if pre == b'\x00\x20' or pre_test_alternative == b'\x00\x20':
                 self.data[patch_offset : patch_offset + 2] = post
                 return self.ret("skip_key_check", patch_offset, pre, post)
 
