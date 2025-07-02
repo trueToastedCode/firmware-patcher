@@ -20,6 +20,7 @@
 from base_patcher import BasePatcher
 from util import FindPattern, SignatureException
 
+
 class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
@@ -37,7 +38,15 @@ class NbPatcher(BasePatcher):
 
         # verify signature of encryption data at expected location
         enc_data_offset = 0x400
-        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+        raw_scooter_enc_id = self.data[enc_data_offset : enc_data_offset + 16]
+        null_pos = raw_scooter_enc_id.find(b'\x00')
+        scooter_enc_id = raw_scooter_enc_id[:null_pos] if null_pos != -1 else raw_scooter_enc_id
+        if scooter_enc_id not in [
+            b'NineBotScooter',
+            b'SCOOTER_VCU_xxU2',
+            b'SCOOTER_VCU_xxG3',
+            b'SCOOTER_VCU_xxF3'
+        ]:
             raise SignatureException('Encryption data not found')
 
         # patch rand code against custom one
@@ -61,7 +70,15 @@ class NbPatcher(BasePatcher):
 
         # verify signature of encryption data at expected location
         enc_data_offset = 0x400
-        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+        raw_scooter_enc_id = self.data[enc_data_offset : enc_data_offset + 16]
+        null_pos = raw_scooter_enc_id.find(b'\x00')
+        scooter_enc_id = raw_scooter_enc_id[:null_pos] if null_pos != -1 else raw_scooter_enc_id
+        if scooter_enc_id not in [
+            b'NineBotScooter',
+            b'SCOOTER_VCU_xxU2',
+            b'SCOOTER_VCU_xxG3',
+            b'SCOOTER_VCU_xxF3'
+        ]:
             raise SignatureException('Encryption data not found')
 
         # patch first occurance of current against custom key
@@ -73,6 +90,93 @@ class NbPatcher(BasePatcher):
 
         return self.ret('embed_enc_key', key_offset, pre, enc_key)
 
+    def us_region_spoof(self):
+        '''
+        OP: trueToastedCode
+        Description: Spoof region always to be US
+        '''
+        if self.model == "g2":
+            sig_from = [
+                0x18, 0x78, 0xFF, 0x21, 0x03, 0x24, 0x30, 0x28, None, 0xD1, 0x5A, 0x78, 0x31, 0x2A, None, 0xD1, 
+                0x9A, 0x78, 0x47, 0x2A, None, 0xD0
+            ]
+            ofs_from = FindPattern(self.data, sig_from) + 0x14
+
+            sig_switch_case_to = [ 0xD8, 0x78, 0x54, 0x38, 0x07, 0x28, None, 0xD2, 0xDF, 0xE8, 0x00, 0xF0 ]
+            ofs_switch_case_to = FindPattern(self.data, sig_switch_case_to) + 0xc
+
+            # default
+            # case 0: 84 = T
+            # case 1: 85 = U
+            # case 2: 86 = V
+            # case 3: 87 = W
+            # case 4: 88 = X
+            # case 5: 89 = Y
+            # case 6: 90 = Z
+
+            switch_case_offsets = self.data[ofs_switch_case_to : ofs_switch_case_to + 0x9]
+
+            # 'X' for case USA
+            target_case = ord('X') - ord('T')
+            ofs_to = ofs_switch_case_to + switch_case_offsets[target_case] * 2
+
+            patch_slice = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_slice]
+            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
+            self.data[patch_slice] = post
+
+            return self.ret("us_region_spoof", ofs_from, pre, post)
+
+        elif self.model == "zt3pro":
+            sig_from = [ 0x01, 0x22, 0x31, 0x2c, None, None, 0x44, 0x78, 0x4b, 0x2c, None, None, 0x84, 0x78, 0x31, 0x2c ]
+            ofs_from = FindPattern(self.data, sig_from) + 0x10
+
+            sig_to = [ 0x03, 0x20, 0xc8, 0x70, 0x4a, 0x70 ]
+            ofs_to = FindPattern(self.data, sig_to, start=ofs_from + 2)
+
+            patch_slice = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_slice]
+            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
+            self.data[patch_slice] = post
+
+            return self.ret("us_region_spoof", ofs_from, pre, post)
+        
+        elif self.model == "g3":
+            sig_from = [
+                0x03, 0x78, 0x00, 0x22, None, 0x49, 0x31, 0x2b, None, 0xd1, 0x43, 0x78, 0x43, 0x2b, None, 0xd1,
+                0x83, 0x78, 0x47, 0x2b, None, 0xd0
+            ]
+            ofs_from = FindPattern(self.data, sig_from) + 0x14
+
+            sig_switch_case_to = [ 0xc0, 0x78, 0x41, 0x38, 0x09, 0x28, None, 0xd2, 0xdf, 0xe8, 0x00, 0xf0 ]
+            ofs_switch_case_to = FindPattern(self.data, sig_switch_case_to) + 0xc
+            
+            # default
+            # case 0: 65 = A
+            # case 1: 66 = B
+            # case 2: 67 = C
+            # case 3: 68 = D
+            # case 4: 69 = E
+            # case 5: 70 = F
+            # case 6: 71 = G
+            # case 7: 72 = H
+            # case 8: 73 = I
+
+            switch_case_offsets = self.data[ofs_switch_case_to : ofs_switch_case_to + 0x9]
+
+            # 'C' for case USA
+            target_case = ord('C') - ord('A')
+            ofs_to = ofs_switch_case_to + switch_case_offsets[target_case] * 2
+
+            patch_slice = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_slice]
+            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
+            self.data[patch_slice] = post
+
+            return self.ret("us_region_spoof", ofs_from, pre, post)
+
+        return []
+    
     def disable_motor_ntc(self):
         '''
         OP: Turbojeet
@@ -107,6 +211,8 @@ class NbPatcher(BasePatcher):
         while (offset := find_pattern_wrap(self.data, cut_src_sig, start=offset + len(cut_src_sig))) != -1:
             patch_offset = offset + 6
 
+            print(hex(patch_offset))
+
             # assuming this is the correct offset, find the destination
             try:
                 dst_offset = FindPattern(self.data, dst_sig, start=patch_offset + 2) + 1
@@ -115,12 +221,13 @@ class NbPatcher(BasePatcher):
 
             # make sure the skip key check specific branch is not already in place
             pre = self.data[patch_offset : patch_offset + 2]
+            pre_test_alternative = self.data[patch_offset + 2 : patch_offset + 4]
             post = self.asm(f'b #{dst_offset - patch_offset}')
             if pre == post:
                 raise SignatureException(f'Skip key check already seems to exist at {hex(patch_offset)}')
 
             # patch if it's the correct patch location
-            if pre == b'\x00\x20':
+            if pre == b'\x00\x20' or pre_test_alternative == b'\x00\x20':
                 self.data[patch_offset : patch_offset + 2] = post
                 return self.ret("skip_key_check", patch_offset, pre, post)
 
@@ -128,15 +235,26 @@ class NbPatcher(BasePatcher):
 
     def allow_sn_change(self):
         '''
-        OP: WallyCZ
+        OP: WallyCZ, trueToastedCode
         Description: Allows changing the serial number
         '''
-        sig = self.asm('ldrb.w r0,[r8,#0x4a]')
-        ofs = FindPattern(self.data, sig)
-        pre = self.data[ofs:ofs+4]
-        post = self.asm('mov.w r0, #0x1')
+        if self.model == "zt3pro":
+            sig = self.asm('ldrb.w r1,[r1,#0x24]')
+            ofs = FindPattern(self.data, sig)
+            pre = self.data[ofs:ofs+4]
+            post = self.asm('mov.w r1, #0x1')
+        elif self.model == "g3":
+            sig = self.asm('ldrb.w r3,[r8,#0x24]')
+            ofs = FindPattern(self.data, sig)
+            pre = self.data[ofs:ofs+4]
+            post = self.asm('mov.w r3, #0x1')
+        else:
+            sig = self.asm('ldrb.w r0,[r8,#0x4a]')
+            ofs = FindPattern(self.data, sig)
+            pre = self.data[ofs:ofs+4]
+            post = self.asm('mov.w r0, #0x1')
+            
         self.data[ofs:ofs+4] = post
-
         return self.ret("allow_sn_change", ofs, pre, post)
 
     def region_free(self):
@@ -173,6 +291,17 @@ class NbPatcher(BasePatcher):
                 post = self.asm("movs r0, #0x6")
                 self.data[ofs_dst:ofs_dst+2] = post
                 res += self.ret("region_free_1", ofs_dst, pre, post)
+        elif self.model == "zt3pro":
+            sig = [0xC0, 0x78, 0x45, 0x28]
+            ofs = FindPattern(self.data, sig)
+
+            sig = [0x03, 0x20, 0xC8, 0x70, 0x4A, 0x70]
+            ofs_dst = FindPattern(self.data, sig, start=ofs)
+
+            pre = self.data[ofs:ofs+2]
+            post = self.asm(f"b {ofs_dst-ofs}")
+            self.data[ofs:ofs+2] = post
+            res += self.ret("region_free", ofs, pre, post)
         else:
             sig = self.asm('cmp r0, #0x4e')
             ofs = FindPattern(self.data, sig, start=0x8000) + len(sig)
