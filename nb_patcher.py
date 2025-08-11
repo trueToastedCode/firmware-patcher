@@ -90,6 +90,44 @@ class NbPatcher(BasePatcher):
 
         return self.ret('embed_enc_key', key_offset, pre, enc_key)
 
+    def disable_custom_enc_key(self):
+        '''
+        OP: trueToastedCode
+        Description: Disable custom enc key
+        '''
+        def find_pattern_wrap(*args, **kwargs):
+            try:
+                return FindPattern(*args, **kwargs)
+            except SignatureException:
+                return -1
+            
+        result = []
+
+        if self.model == "g2":
+            sig = bytes.fromhex('FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0')
+            offset = -len(sig)
+            last_offset = None
+            while (offset := find_pattern_wrap(self.data, sig, start=offset + len(sig))) != -1:
+                last_offset = offset
+            if last_offset is None:
+                raise SignatureException('Default key not found')
+            dst_addr = last_offset + 0x8001000
+            assert dst_addr % 4 == 0
+            post = dst_addr.to_bytes(4, byteorder='little')
+
+            pre = (0x8001420).to_bytes(4, byteorder='little')
+            offset = -len(pre)
+            i = 0
+            while (offset := find_pattern_wrap(self.data, pre, start=offset + len(pre))) != -1:
+                self.data[offset : offset + 4] = post
+                result += self.ret(f'change_enc_key_reference_{i}', offset, pre, post)
+                i += 1
+        
+            if not result:
+                raise SignatureException('References to default key not found')
+
+        return result
+    
     def us_region_spoof(self):
         '''
         OP: trueToastedCode

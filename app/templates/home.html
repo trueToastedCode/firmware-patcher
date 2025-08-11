@@ -184,7 +184,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-group text-center d-grid">
+                    <div class="card-group text-center">
                         <div class="card">
                             <div class="card-header">
                                 <input class="form-check-input" type="checkbox" name="embed_rand_code_cb"
@@ -195,6 +195,16 @@
                                 <div class="card-text">Custom rand code to be embedded into the firmware.</div>
                                 <div class="py-2"></div>
                                 <input class="form-control text-center" type="text" name="embed_rand_code">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="disable_custom_enc_key">
+                                <label class="form-check-label"><b>Disable Custom Encryption Key</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-text">Change the references pointing to the custom encryption key to
+                                    the default key, which is embedded as well.</div>
                             </div>
                         </div>
                     </div>
@@ -973,7 +983,8 @@
                             <i class="fas fa-star me-2"></i>Thanks to WallyCZ and Encryptize for the awesome collab!
                         </p>
                         <p>
-                            <i class="fas fa-magic me-2"></i>Thanks to TrueToastedCode for a ton of contributions (new patches, enhancements, etc.)!
+                            <i class="fas fa-magic me-2"></i>Thanks to TrueToastedCode for a ton of contributions (new
+                            patches, enhancements, etc.)!
                         </p>
                         <p>
                             <i class="fas fa-code-branch me-2"></i>Based on BotoX

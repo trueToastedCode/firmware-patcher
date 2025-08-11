@@ -31,6 +31,7 @@ const forms = {
     "EMBED_ENC_KEY": "embed_enc_key",
     "CUSTOM_ENC_KEY": "custom_enc_key",
     "EMBED_RAND_CODE": "embed_rand_code",
+    "DISABLE_CUSTOM_ENC_KEY": "disable_custom_enc_key",
     "US_REGION_SPOOF": "us_region_spoof",
     "ALLOW_SN_CHANGE": "allow_sn_change",
     "BLM": "blm",
@@ -218,6 +219,7 @@ function Preset_1S() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
 }
 
 function Preset_Pro2() {
@@ -231,6 +233,7 @@ function Preset_Pro2() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
 }
 
 function Preset_Lite() {
@@ -247,6 +250,7 @@ function Preset_Lite() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
 }
 
 function Preset_Mi3() {
@@ -260,6 +264,7 @@ function Preset_Mi3() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
 }
 
 function Preset_4Pro() {
@@ -277,6 +282,7 @@ function Preset_4Pro() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
 }
 
 function Preset_4ProPlus() {
@@ -337,6 +343,7 @@ function Preset_F2Base() {
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
 }
 
 function Preset_G2() {
@@ -436,6 +443,7 @@ function DisableAll(disable) {
     GetForm(forms.KML).disabled = disable;
     GetForm(forms.US_REGION_SPOOF).disabled = disable;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = disable;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = disable;
 }
 
 function Ped_To_Eco(cb) {

@@ -97,6 +97,12 @@ class BasePatcher():
     def embed_enc_key(self, enc_key_str):
         raise NotImplementedError()
 
+    @patch(label="disable_custom_enc_key",
+           description="Disable Custom Enc Key.",
+           group=PatchGroup.GENERAL)
+    def disable_custom_enc_key(self):
+        raise NotImplementedError()
+
     @patch(label="embed_enc_key",
            description="Spoof region always to be US.",
            group=PatchGroup.GENERAL)

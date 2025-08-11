@@ -177,6 +177,10 @@ def patch(data):
     if embed_enc_key:
         res.append(('EMBED_ENC_KEY', patcher.embed_enc_key(embed_enc_key)))
 
+    disable_custom_enc_key = flask.request.form.get('disable_custom_enc_key', None)
+    if disable_custom_enc_key is not None:
+        res.append(("Disable Custom Enc Key", patcher.disable_custom_enc_key()))
+
     us_region_spoof = flask.request.form.get('us_region_spoof', None)
     if us_region_spoof is not None:
         res.append(("US Region Spoof", patcher.us_region_spoof()))
