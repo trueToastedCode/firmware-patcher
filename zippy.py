@@ -91,6 +91,7 @@ class Zippy():
     @staticmethod
     def get_v3(name, model, md5, md5e, enforce):
         compatible_list = []
+        fw_type = 'DRV'
         if model in ["1s", "pro2", "lite", "mi3"]:
             compatible_list = ["mi_DRV_STM32F103CxT6"]
             if model != "4pro":
@@ -102,16 +103,17 @@ class Zippy():
             compatible_list += ["g2_DRV_AT32F415CxT7"]
         elif model in ["g3"]:
             compatible_list += ["g3_VCU_AT32"]
+            fw_type = 'VCU'
         elif model in ["zt3pro"]:
             compatible_list += ["x3_VCU_AT32"]
-
+            fw_type = 'VCU'
         data = {
             "schemaVersion": 1,
             "firmware": {
                 "displayName": name,
                 "model": model,
                 "enforceModel": enforce,
-                "type": "DRV",
+                "type": fw_type,
                 "compatible": compatible_list,
                 "encryption": "both",
                 "md5": {
