@@ -100,6 +100,10 @@ class Zippy():
             compatible_list += ["f2_DRV_AT32F415CxT7"]
         elif model in ["g2"]:
             compatible_list += ["g2_DRV_AT32F415CxT7"]
+        elif model in ["g3"]:
+            compatible_list += ["g3_VCU_AT32"]
+        elif model in ["zt3pro"]:
+            compatible_list += ["x3_VCU_AT32"]
 
         data = {
             "schemaVersion": 1,
