@@ -394,6 +394,7 @@ function Preset_G3() {
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
     GetForm(forms.US_REGION_SPOOF).disabled = false;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = false;
 }
 
 function Preset_F3Pro() {

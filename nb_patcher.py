@@ -103,7 +103,7 @@ class NbPatcher(BasePatcher):
             
         result = []
 
-        if self.model == "g2":
+        if self.model in [ "g2", "g3" ]:
             sig = bytes.fromhex('FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0')
             offset = -len(sig)
             last_offset = None
@@ -125,6 +125,11 @@ class NbPatcher(BasePatcher):
         
             if not result:
                 raise SignatureException('References to default key not found')
+            
+            return result
+
+        if not result:
+            raise SignatureException('disable custom enc key could not be applied')
 
         return result
     
@@ -248,8 +253,6 @@ class NbPatcher(BasePatcher):
         offset = -len(cut_src_sig)
         while (offset := find_pattern_wrap(self.data, cut_src_sig, start=offset + len(cut_src_sig))) != -1:
             patch_offset = offset + 6
-
-            print(hex(patch_offset))
 
             # assuming this is the correct offset, find the destination
             try:
