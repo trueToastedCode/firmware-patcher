@@ -138,10 +138,6 @@ class Zippy():
         md5e = hashlib.md5()
         md5e.update(enc_data)
 
-        info_txt = 'dev: {};\nnam: {};\nenc: B;\ntyp: DRV;\nmd5: {};\nmd5e: {};\n'.format(
-            self.model, self.name, md5.hexdigest(), md5e.hexdigest())
-        zip_file.writestr('info.txt', info_txt.encode())
-
         info_json = Zippy.get_v3(self.name, self.model, md5.hexdigest(), md5e.hexdigest(), enforce)
         zip_file.writestr('info.json', info_json.encode())
 
