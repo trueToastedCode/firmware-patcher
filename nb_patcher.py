@@ -45,7 +45,8 @@ class NbPatcher(BasePatcher):
             b'NineBotScooter',
             b'SCOOTER_VCU_xxU2',
             b'SCOOTER_VCU_xxG3',
-            b'SCOOTER_VCU_xxF3'
+            b'SCOOTER_VCU_xxF3',
+            b'SCOOTER_MCU_0001'
         ]:
             raise SignatureException('Encryption data not found')
 
@@ -77,7 +78,8 @@ class NbPatcher(BasePatcher):
             b'NineBotScooter',
             b'SCOOTER_VCU_xxU2',
             b'SCOOTER_VCU_xxG3',
-            b'SCOOTER_VCU_xxF3'
+            b'SCOOTER_VCU_xxF3',
+            b'SCOOTER_MCU_0001'
         ]:
             raise SignatureException('Encryption data not found')
 
@@ -103,7 +105,7 @@ class NbPatcher(BasePatcher):
             
         result = []
 
-        if self.model in [ "g2", "g3_vcu" ]:
+        if self.model in [ "g2", "g3_vcu", "g3_mcu" ]:
             sig = bytes.fromhex('FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0')
             offset = -len(sig)
             last_offset = None
@@ -185,38 +187,25 @@ class NbPatcher(BasePatcher):
             return self.ret("us_region_spoof", ofs_from, pre, post)
         
         elif self.model == "g3_vcu":
-            sig_from = [
-                0x03, 0x78, 0x00, 0x22, None, 0x49, 0x31, 0x2b, None, 0xd1, 0x43, 0x78, 0x43, 0x2b, None, 0xd1,
-                0x83, 0x78, 0x47, 0x2b, None, 0xd0
+            from_pattern = [
+                ord('1'), None,
+                None, 0xd1,
+                None, 0x78,
+                ord('C'), None,
+                None, 0xd1,
+                None, 0x78,
+                ord('G'), None,
+                None, 0xd1,
+                None, 0x78,
+                ord('A'), None
             ]
-            ofs_from = FindPattern(self.data, sig_from) + 0x14
-
-            sig_switch_case_to = [ 0xc0, 0x78, 0x41, 0x38, 0x09, 0x28, None, 0xd2, 0xdf, 0xe8, 0x00, 0xf0 ]
-            ofs_switch_case_to = FindPattern(self.data, sig_switch_case_to) + 0xc
-            
-            # default
-            # case 0: 65 = A
-            # case 1: 66 = B
-            # case 2: 67 = C
-            # case 3: 68 = D
-            # case 4: 69 = E
-            # case 5: 70 = F
-            # case 6: 71 = G
-            # case 7: 72 = H
-            # case 8: 73 = I
-
-            switch_case_offsets = self.data[ofs_switch_case_to : ofs_switch_case_to + 0x9]
-
-            # 'C' for case USA
-            target_case = ord('C') - ord('A')
-            ofs_to = ofs_switch_case_to + switch_case_offsets[target_case] * 2
-
-            patch_slice = slice(ofs_from, ofs_from + 2)
-            pre = self.data[patch_slice]
-            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
-            self.data[patch_slice] = post
-
-            return self.ret("us_region_spoof", ofs_from, pre, post)
+            from_ofs = FindPattern(self.data, from_pattern)
+            to_ofs = FindPattern(self.data, [0x00, 0x20, None, 0xe0], start=from_ofs + len(from_pattern))
+            patch_sl = slice(from_ofs, from_ofs + 2)
+            pre = self.data[patch_sl]
+            post = self.asm(f'b #{hex(to_ofs - from_ofs)}')
+            self.data[patch_sl] = post
+            return self.ret("us_region_spoof", from_ofs, pre, post)
 
         return []
     
