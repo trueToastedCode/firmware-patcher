@@ -106,6 +106,9 @@ class Zippy():
         elif model in ["g3_vcu"]:
             compatible_list += ["g3_VCU_AT32"]
             fw_type = 'VCU'
+        elif model in ["g3_mcu"]:
+            compatible_list += ["x3_MCU_AT32"]
+            fw_type = 'MCU'
         elif model in ["zt3pro_vcu"]:
             compatible_list += ["x3_VCU_AT32"]
             fw_type = 'VCU'

@@ -172,6 +172,7 @@ function UdateVisibilityForDevice(dev) {
         case "g2":
         case "zt3pro_vcu":
         case "g3_vcu":
+        case "g3_mcu":
         case "f3pro_vcu":
         case "gt3_vcu":
             dkcElTitleNinebot.style.display = 'inline';
@@ -203,6 +204,7 @@ function ChangeDevice() {
         case "g2": Preset_G2(); break;
         case "zt3pro_vcu": Preset_ZT3Pro_VCU(); break;
         case "g3_vcu": Preset_G3_VCU(); break;
+        case "g3_mcu": Preset_G3_MCU(); break;
         case "f3pro_vcu": Preset_F3Pro_VCU(); break;
         case "gt3_vcu": Preset_GT3_VCU(); break;
     }
@@ -395,6 +397,10 @@ function Preset_G3_VCU() {
     GetForm(forms.US_REGION_SPOOF).disabled = false;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = false;
+}
+
+function Preset_G3_MCU() {
+    DisableAll(true);
 }
 
 function Preset_F3Pro_VCU() {

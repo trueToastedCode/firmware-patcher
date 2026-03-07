@@ -163,7 +163,10 @@ def patch(data):
     device = flask.request.form.get('device')
     if device in ["1s", "pro2", "lite", "mi3", "4pro"]:
         patcher = MiPatcher(data, device)
-    elif device in ["f2pro", "f2plus", "f2", "g2", "4plus", "4max", "zt3pro_vcu", "g3_vcu", "f3pro_vcu", "gt3_vcu"]:
+    elif device in [
+        "f2pro", "f2plus", "f2", "g2", "4plus", "4max",
+        "zt3pro_vcu", "g3_vcu", "g3_mcu", "f3pro_vcu", "gt3_vcu"
+    ]:
         patcher = NbPatcher(data, device)
         is_nb = True
 
