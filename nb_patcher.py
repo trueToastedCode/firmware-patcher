@@ -17,6 +17,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+import re
 from base_patcher import BasePatcher
 from util import FindPattern, SignatureException
 
@@ -274,7 +275,7 @@ class NbPatcher(BasePatcher):
             pre = self.data[ofs:ofs+4]
             post = self.asm('mov.w r1, #0x1')
         elif self.model == "g3_vcu":
-            sig = self.asm('ldrb.w r3,[r8,#0x24]')
+            sig = self.asm('ldrb.w r3,[r3,#0x24]')
             ofs = FindPattern(self.data, sig)
             pre = self.data[ofs:ofs+4]
             post = self.asm('mov.w r3, #0x1')
