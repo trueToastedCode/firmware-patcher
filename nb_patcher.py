@@ -251,6 +251,24 @@ class NbPatcher(BasePatcher):
         OP: WallyCZ
         Description: Skips key check
         '''
+        if self.model == "g3_mcu":
+            pattern_from = [
+                None, 0xdb,
+                None, None,
+                None, None, None, None,
+                None, 0xf5, 0x9a, 0x43,
+                0x43, None,
+                None, 0xd0
+            ]
+            ofs_from = FindPattern(self.data, pattern_from) + len(pattern_from) - 2
+            patch_sl = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_sl]
+            instruction = self.disasm(self.data[patch_sl])[0]
+            delta = int(instruction[instruction.rfind('#') + 1:], 0)
+            post = self.asm(f'b #{hex(delta)}')
+            self.data[patch_sl] = post
+            return self.ret("skip_key_check", ofs_from, pre, post)
+
         def find_pattern_wrap(*args, **kwargs):
             try:
                 return FindPattern(*args, **kwargs)
