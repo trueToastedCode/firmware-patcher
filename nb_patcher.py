@@ -129,7 +129,7 @@ class NbPatcher(BasePatcher):
             
         result = []
 
-        if self.model in [ "g2", "g3_vcu", "g3_mcu" ]:
+        if self.model in [ "g2", "g3_vcu", "g3_mcu", "gt3_vcu" ]:
             sig = bytes.fromhex('FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0')
             offset = -len(sig)
             last_offset = None

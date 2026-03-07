@@ -431,6 +431,7 @@ function Preset_GT3_VCU() {
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = false;
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = false;
 }
 
 function DisableAll(disable) {
