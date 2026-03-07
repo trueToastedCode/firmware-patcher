@@ -103,7 +103,7 @@ class NbPatcher(BasePatcher):
             
         result = []
 
-        if self.model in [ "g2", "g3" ]:
+        if self.model in [ "g2", "g3_vcu" ]:
             sig = bytes.fromhex('FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0')
             offset = -len(sig)
             last_offset = None
@@ -170,7 +170,7 @@ class NbPatcher(BasePatcher):
 
             return self.ret("us_region_spoof", ofs_from, pre, post)
 
-        elif self.model == "zt3pro":
+        elif self.model == "zt3pro_vcu":
             sig_from = [ 0x01, 0x22, 0x31, 0x2c, None, None, 0x44, 0x78, 0x4b, 0x2c, None, None, 0x84, 0x78, 0x31, 0x2c ]
             ofs_from = FindPattern(self.data, sig_from) + 0x10
 
@@ -184,7 +184,7 @@ class NbPatcher(BasePatcher):
 
             return self.ret("us_region_spoof", ofs_from, pre, post)
         
-        elif self.model == "g3":
+        elif self.model == "g3_vcu":
             sig_from = [
                 0x03, 0x78, 0x00, 0x22, None, 0x49, 0x31, 0x2b, None, 0xd1, 0x43, 0x78, 0x43, 0x2b, None, 0xd1,
                 0x83, 0x78, 0x47, 0x2b, None, 0xd0
@@ -279,12 +279,12 @@ class NbPatcher(BasePatcher):
         OP: WallyCZ, trueToastedCode
         Description: Allows changing the serial number
         '''
-        if self.model == "zt3pro":
+        if self.model == "zt3pro_vcu":
             sig = self.asm('ldrb.w r1,[r1,#0x24]')
             ofs = FindPattern(self.data, sig)
             pre = self.data[ofs:ofs+4]
             post = self.asm('mov.w r1, #0x1')
-        elif self.model == "g3":
+        elif self.model == "g3_vcu":
             sig = self.asm('ldrb.w r3,[r8,#0x24]')
             ofs = FindPattern(self.data, sig)
             pre = self.data[ofs:ofs+4]
@@ -332,7 +332,7 @@ class NbPatcher(BasePatcher):
                 post = self.asm("movs r0, #0x6")
                 self.data[ofs_dst:ofs_dst+2] = post
                 res += self.ret("region_free_1", ofs_dst, pre, post)
-        elif self.model == "zt3pro":
+        elif self.model == "zt3pro_vcu":
             sig = [0xC0, 0x78, 0x45, 0x28]
             ofs = FindPattern(self.data, sig)
 

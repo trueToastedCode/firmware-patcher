@@ -170,10 +170,10 @@ function UdateVisibilityForDevice(dev) {
         case "f2plus":
         case "f2":
         case "g2":
-        case "zt3pro":
-        case "g3":
-        case "f3pro":
-        case "gt3":
+        case "zt3pro_vcu":
+        case "g3_vcu":
+        case "f3pro_vcu":
+        case "gt3_vcu":
             dkcElTitleNinebot.style.display = 'inline';
             dkcElTitleXiaomi.style.display = 'none';
             dkcElInfoNinebot.style.display = 'block';
@@ -201,10 +201,10 @@ function ChangeDevice() {
         case "f2plus": Preset_F2Plus(); break;
         case "f2": Preset_F2(); break;
         case "g2": Preset_G2(); break;
-        case "zt3pro": Preset_ZT3Pro(); break;
-        case "g3": Preset_G3(); break;
-        case "f3pro": Preset_F3Pro(); break;
-        case "gt3": Preset_GT3(); break;
+        case "zt3pro_vcu": Preset_ZT3Pro_VCU(); break;
+        case "g3_vcu": Preset_G3_VCU(); break;
+        case "f3pro_vcu": Preset_F3Pro_VCU(); break;
+        case "gt3_vcu": Preset_GT3_VCU(); break;
     }
 }
 
@@ -375,7 +375,7 @@ function Preset_G2() {
     GetForm(forms.PNB).disabled = true;
 }
 
-function Preset_ZT3Pro() {
+function Preset_ZT3Pro_VCU() {
     DisableAll(true);
     GetForm(forms.RML).disabled = false;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
@@ -386,7 +386,7 @@ function Preset_ZT3Pro() {
     GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
 }
 
-function Preset_G3() {
+function Preset_G3_VCU() {
     DisableAll(true);
     GetForm(forms.RML).disabled = false;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
@@ -397,7 +397,7 @@ function Preset_G3() {
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = false;
 }
 
-function Preset_F3Pro() {
+function Preset_F3Pro_VCU() {
     DisableAll(true);
     GetForm(forms.RML).disabled = false;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
@@ -405,7 +405,7 @@ function Preset_F3Pro() {
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
 }
 
-function Preset_GT3() {
+function Preset_GT3_VCU() {
     DisableAll(true);
     GetForm(forms.RML).disabled = false;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
