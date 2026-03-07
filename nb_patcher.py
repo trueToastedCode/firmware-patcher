@@ -26,6 +26,29 @@ class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
 
+    def embed_speed_table(self, speed_table_data):
+        '''
+        OP: trueToastedCode
+        Description: Embed custom speed table
+        '''
+        if self.model in [ "g3_vcu" ]:
+            assert len(speed_table_data) == 6
+            for profile in speed_table_data:
+                assert len(profile) == 9
+            default_row_0_vals = [16, 35, 13, 25, 55, 17, 32, 100, 35]
+            default_row_0 = b''.join(x.to_bytes(4, 'little') for x in default_row_0_vals)
+            offs = FindPattern(self.data, default_row_0)
+            custom_speed_config = b''.join(
+                val.to_bytes(4, 'little')
+                    for profile in speed_table_data
+                for val in profile
+            )
+            assert len(custom_speed_config) == 4 * 9 * 6
+            patch_sl = slice(offs, offs+216)
+            pre = self.data[patch_sl]
+            self.data[patch_sl] = custom_speed_config
+            return self.ret('speed_config', offs, pre, custom_speed_config)
+
     def embed_rand_code(self, rand_code_str):
         '''
         OP: trueToastedCode

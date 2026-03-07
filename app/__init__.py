@@ -23,6 +23,7 @@
 import inspect
 import io
 import os
+import json
 import pathlib
 import traceback
 from datetime import datetime
@@ -169,6 +170,11 @@ def patch(data):
     ]:
         patcher = NbPatcher(data, device)
         is_nb = True
+
+    speed_table_data = flask.request.form.get('speed_table_data')
+    if speed_table_data is not None:
+        speed_table_data = json.loads(speed_table_data)
+        res.append(('SPEED_TABLE', patcher.embed_speed_table(speed_table_data)))
 
     embed_rand_code = flask.request.form.get('embed_rand_code', None)
     embed_rand_code = embed_rand_code.strip() if embed_rand_code is not None else None

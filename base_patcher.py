@@ -91,6 +91,12 @@ class BasePatcher():
     def embed_rand_code(self, rand_code_str):
         raise NotImplementedError()
 
+    @patch(label="embed_speed_table",
+           description="Embed custom speed table.",
+           group=PatchGroup.GENERAL)
+    def embed_speed_table(self, speed_table_data):
+        raise NotImplementedError()
+
     @patch(label="embed_enc_key",
            description="Embed custom encryption key.",
            group=PatchGroup.GENERAL)
