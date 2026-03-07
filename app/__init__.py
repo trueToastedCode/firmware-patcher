@@ -435,14 +435,6 @@ def patch_firmware():
 
     try:
         res, data_patched = patch(zippy.data)
-        if (
-            not res
-            and (
-                not custom_enc_key
-                or (custom_enc_key and pod not in ["Zip", ".bin.enc"])
-            )
-        ):
-            return 'No patches applied. Make sure to select the correct input file and at least one patch.'
         params = '\n'.join([x[0] for x in res]) + '\n'
         zippy.params = params
         zippy.data = data_patched
