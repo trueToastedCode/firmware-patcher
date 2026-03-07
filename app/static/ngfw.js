@@ -617,6 +617,15 @@ const SPEED_TABLE_DEFAULTS = [
     [15, 35, 13, 20, 55, 17, 25, 100, 35],
 ];
 
+const SPEED_TABLE_REGIONS = [
+    "0(C)",
+    "1(A)",
+    "2(rest)",
+    "3(E)",
+    "4(D)",
+    "5(I)",
+];
+
 function BuildCustomTable(data) {
     const tbody = document.getElementById('speed_table_body');
     tbody.innerHTML = '';
@@ -625,7 +634,7 @@ function BuildCustomTable(data) {
         // Record label cell
         const th = document.createElement('th');
         th.scope = 'row';
-        th.textContent = rowIdx;
+        th.textContent = SPEED_TABLE_REGIONS[rowIdx] ?? rowIdx;
         th.style.background = '#343a40';
         th.style.color = '#fff';
         tr.appendChild(th);
