@@ -26,7 +26,10 @@ import json
 from urllib import request
 import os
 from io import BytesIO
-import fasttea
+from ninebottea import NinebotTEA
+
+
+default_tea = NinebotTEA()
 
 
 ROOTPATH = os.path.dirname(os.path.dirname(
@@ -80,13 +83,12 @@ class Zippy():
                         raise Exception("Decode error")
 
     def encrypt(self, key=None):
-        if key:
-            return fasttea.encrypt(bytes(self.data), key)
-        else:
-            return fasttea.encrypt(bytes(self.data))
+        tea = default_tea if key is None else NinebotTEA(key=key)
+        return tea.encrypt(bytes(self.data))
 
-    def decrypt(self):
-        return fasttea.decrypt(bytes(self.data))
+    def decrypt(self, key=None):
+        tea = default_tea if key is None else NinebotTEA(key=key)
+        return tea.decrypt(bytes(self.data))
 
     @staticmethod
     def get_v3(name, model, md5, md5e, enforce):
