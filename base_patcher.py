@@ -21,7 +21,7 @@ from enum import Enum
 
 import capstone
 import keystone
-from util import FindPattern, SignatureException
+from util import FindPattern, FindPatternGracef, SignatureException
 
 
 class PatchGroup(Enum):

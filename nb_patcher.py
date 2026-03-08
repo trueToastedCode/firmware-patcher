@@ -19,7 +19,7 @@
 
 import re
 from base_patcher import BasePatcher
-from util import FindPattern, SignatureException
+from util import FindPattern, FindPatternGracef, SignatureException
 from nb_version_util import NbVersionUtil
 
 
@@ -47,7 +47,12 @@ class NbPatcher(BasePatcher):
         register = match.group(2)
 
         orig_version_assignment = self.asm(orig_version_assignment)
-        ofs = FindPattern(self.data, orig_version_assignment)
+        start = 0
+        all_ofs = []
+        while (ofs := FindPatternGracef(self.data, orig_version_assignment, start=start)) != -1:
+            all_ofs.append(ofs)
+            start = ofs + len(orig_version_assignment)
+        ofs = all_ofs[-1]
 
         patch_sl = slice(ofs, ofs + 4)
         pre = self.data[patch_sl]
