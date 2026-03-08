@@ -171,26 +171,28 @@ def patch(data):
         patcher = NbPatcher(data, device)
         is_nb = True
 
-    if (version := flask.request.form.get('version_spoof', None)) is not None:
-        res.append(('Version Spoof', patcher.version_spoof(version.strip())))
+    if (
+        (version := flask.request.form.get('version_spoof', None)) is not None and
+        (version := version.strip())
+    ):
+        res.append(('Version Spoof', patcher.version_spoof(version)))
 
-    speed_table_data = flask.request.form.get('speed_table_data')
-    if speed_table_data is not None:
-        speed_table_data = json.loads(speed_table_data)
-        res.append(('SPEED_TABLE', patcher.embed_speed_table(speed_table_data)))
+    if (speed_table_data := flask.request.form.get('speed_table_data')) is not None:
+        res.append(('Speed Table', patcher.embed_speed_table(json.loads(speed_table_data))))
 
-    embed_rand_code = flask.request.form.get('embed_rand_code', None)
-    embed_rand_code = embed_rand_code.strip() if embed_rand_code is not None else None
-    if embed_rand_code:
-        res.append(('EMBED_RAND_CODE', patcher.embed_rand_code(embed_rand_code)))
+    if (
+        (embed_rand_code := flask.request.form.get('embed_rand_code')) is not None and
+        (embed_rand_code := embed_rand_code.strip())
+    ):
+        res.append(('Embed Rand Code', patcher.embed_rand_code(embed_rand_code)))
 
-    embed_enc_key = flask.request.form.get('embed_enc_key', None)
-    embed_enc_key = embed_enc_key.strip() if embed_enc_key is not None else None
-    if embed_enc_key:
-        res.append(('EMBED_ENC_KEY', patcher.embed_enc_key(embed_enc_key)))
+    if (
+        (embed_enc_key := flask.request.form.get('embed_enc_key')) is not None and
+        (embed_enc_key := embed_enc_key.strip())
+    ):
+        res.append(('Embed Enc Key', patcher.embed_enc_key(embed_enc_key)))
 
-    disable_custom_enc_key = flask.request.form.get('disable_custom_enc_key', None)
-    if disable_custom_enc_key is not None:
+    if (flask.request.form.get('disable_custom_enc_key')) is not None:
         res.append(("Disable Custom Enc Key", patcher.disable_custom_enc_key()))
 
     us_region_spoof = flask.request.form.get('us_region_spoof', None)
