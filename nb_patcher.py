@@ -20,12 +20,43 @@
 import re
 from base_patcher import BasePatcher
 from util import FindPattern, SignatureException
+from nb_version_util import NbVersionUtil
 
 
 class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
 
+    orig_version_assignments = {
+        "g2": f'MOV.W R0, #{hex(NbVersionUtil.string_to_version("1.7.6"))}',
+        "g3_vcu": f'MOVW R0, #{hex(NbVersionUtil.string_to_version("1.5.15"))}',
+        "g3_mcu": f'MOV.W R0, #{hex(NbVersionUtil.string_to_version("1.5.0"))}'
+    }
+    
+    def version_spoof(self, version):
+        '''
+        OP: trueToastedCode
+        Description: Spoof firmware version
+        '''
+        if (orig_version_assignment := self.orig_version_assignments.get(self.model)) is None:
+            raise ValueError(f'Version Spoofing for target {self.model} is not supported')
+        
+        match = re.search(r'\b(mov\.?w)\s+(R\d+)\b', orig_version_assignment, re.IGNORECASE)
+        assert match is not None
+        mov_instr = match.group(1)
+        register = match.group(2)
+
+        orig_version_assignment = self.asm(orig_version_assignment)
+        ofs = FindPattern(self.data, orig_version_assignment)
+
+        patch_sl = slice(ofs, ofs + 4)
+        pre = self.data[patch_sl]
+        new_version_assignment = self.asm(f'{mov_instr} {register}, #{hex(NbVersionUtil.string_to_version(version))}')
+        assert len(new_version_assignment) == 4
+        self.data[patch_sl] = new_version_assignment
+
+        return self.ret('version_spoof', ofs, pre, new_version_assignment)
+    
     def embed_speed_table(self, speed_table_data):
         '''
         OP: trueToastedCode

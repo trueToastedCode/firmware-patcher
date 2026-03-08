@@ -171,6 +171,9 @@ def patch(data):
         patcher = NbPatcher(data, device)
         is_nb = True
 
+    if (version := flask.request.form.get('version_spoof', None)) is not None:
+        res.append(('Version Spoof', patcher.version_spoof(version.strip())))
+
     speed_table_data = flask.request.form.get('speed_table_data')
     if speed_table_data is not None:
         speed_table_data = json.loads(speed_table_data)

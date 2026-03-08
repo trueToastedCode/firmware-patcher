@@ -85,6 +85,12 @@ class BasePatcher():
     def ret(self, descr, ofs, pre, post):
         return [(descr, hex(ofs), pre.hex(), post.hex())]
 
+    @patch(label="version_spoof",
+           description="Spoof firmware version.",
+           group=PatchGroup.GENERAL)
+    def version_spoof(self, version):
+        raise NotImplementedError()
+    
     @patch(label="embed_rand_code",
            description="Embed custom rand code.",
            group=PatchGroup.GENERAL)
