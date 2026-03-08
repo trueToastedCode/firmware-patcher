@@ -52,15 +52,18 @@ class NbPatcher(BasePatcher):
         while (ofs := FindPatternGracef(self.data, orig_version_assignment, start=start)) != -1:
             all_ofs.append(ofs)
             start = ofs + len(orig_version_assignment)
-        ofs = all_ofs[-1]
 
-        patch_sl = slice(ofs, ofs + 4)
-        pre = self.data[patch_sl]
-        new_version_assignment = self.asm(f'{mov_instr} {register}, #{hex(NbVersionUtil.string_to_version(version))}')
-        assert len(new_version_assignment) == 4
-        self.data[patch_sl] = new_version_assignment
+        result = []
 
-        return self.ret('version_spoof', ofs, pre, new_version_assignment)
+        for ofs in all_ofs:
+            patch_sl = slice(ofs, ofs + 4)
+            pre = self.data[patch_sl]
+            new_version_assignment = self.asm(f'{mov_instr} {register}, #{hex(NbVersionUtil.string_to_version(version))}')
+            assert len(new_version_assignment) == 4
+            self.data[patch_sl] = new_version_assignment
+            result += self.ret('version_spoof', ofs, pre, new_version_assignment)
+        
+        return result
     
     def embed_speed_table(self, speed_table_data):
         '''
