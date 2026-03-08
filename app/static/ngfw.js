@@ -46,7 +46,8 @@ const forms = {
     "KML_L1": "kml_l1",
     "KML_L2": "kml_l2",
     "SPEED_TABLE": "speed_table",
-    "VERSION_SPOOF": "version_spoof"
+    "VERSION_SPOOF": "version_spoof",
+    "FIELDW_MOD": "fieldw_mod"
 };
 
 // Move all functions from the script section
@@ -226,6 +227,7 @@ function Preset_1S() {
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
     GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
     GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
+    GetForm(forms.FIELDW_MOD).disabled = true;
 }
 
 function Preset_Pro2() {
@@ -242,6 +244,7 @@ function Preset_Pro2() {
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
     GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
     GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
+    GetForm(forms.FIELDW_MOD).disabled = true;
 }
 
 function Preset_Lite() {
@@ -261,6 +264,7 @@ function Preset_Lite() {
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
     GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
     GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
+    GetForm(forms.FIELDW_MOD).disabled = true;
 }
 
 function Preset_Mi3() {
@@ -277,6 +281,7 @@ function Preset_Mi3() {
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
     GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
     GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
+    GetForm(forms.FIELDW_MOD).disabled = true;
 }
 
 function Preset_4Pro() {
@@ -297,6 +302,7 @@ function Preset_4Pro() {
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
     GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
     GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
+    GetForm(forms.FIELDW_MOD).disabled = true;
 }
 
 function Preset_4ProPlus() {
@@ -360,6 +366,7 @@ function Preset_F2Base() {
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
     GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
     GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
+    GetForm(forms.FIELDW_MOD).disabled = true;
 }
 
 function Preset_G2() {
@@ -390,6 +397,7 @@ function Preset_G2() {
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
     GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
+    GetForm(forms.FIELDW_MOD).disabled = true;
 }
 
 function Preset_ZT3Pro_VCU() {
@@ -424,6 +432,7 @@ function Preset_G3_MCU() {
     GetForm(forms.RML).disabled = false;
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = false;
     GetForm(forms.VERSION_SPOOF + "_cb").disabled = false;
+    GetForm(forms.FIELDW_MOD).disabled = false;
 }
 
 function Preset_F3Pro_VCU() {
@@ -477,6 +486,7 @@ function DisableAll(disable) {
     GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = disable;
     GetForm(forms.SPEED_TABLE + "_cb").disabled = disable;
     GetForm(forms.VERSION_SPOOF + "_cb").disabled = disable;
+    GetForm(forms.FIELDW_MOD).disabled = disable;
 }
 
 function Ped_To_Eco(cb) {
@@ -542,6 +552,7 @@ function Preset_Default() {
     ChangeForm(forms.KML_L1, "12", null);
     ChangeForm(forms.KML_L2, "20", null);
     ChangeForm(forms.VERSION_SPOOF, "", false);
+    ChangeForm(forms.FIELDW_MOD, false);
 }
 
 // Initialize form values from URL parameters on page load

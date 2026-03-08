@@ -171,6 +171,9 @@ def patch(data):
         patcher = NbPatcher(data, device)
         is_nb = True
 
+    if flask.request.form.get('fieldw_mod') is not None:
+        res.append(('Field Weakening Mod', patcher.fieldw_mod()))
+
     if (
         (version := flask.request.form.get('version_spoof', None)) is not None and
         (version := version.strip())
