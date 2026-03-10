@@ -49,86 +49,113 @@ class NbPatcher(BasePatcher):
     def fieldw_mod(self):
         '''
         OP: trueToastedCode
-        Description: Increase negative Id limit. !!! MUST BE USED together with disalbe key check to get a code cave !!!
+        Description: Increase negative Id limit. !!! MUST BE USED together with disable key check to get a code cave !!!
         '''
         patch_name = 'fieldw_mod'
         result = []
 
+        # Claim a code cave in an unused/repurposed region of ROM.
+        # This is the space freed up by the "disable key check" patch.
         cave = CodeCave(self, start=0x8006896, end=0x80068D6)
 
         # -------------------------------------------------------------------------
-        # STEP 1: Redirect the BNE at BRANCH_SKIP_START so it jumps over the cave,
-        # preventing fall-through into hijacked space.
+        # STEP 1: Patch the BNE at BRANCH_SKIP_START so it jumps over the cave,
+        # preventing normal execution from falling through into our hijacked space.
+        # Without this, the CPU could accidentally execute our cave code as part of
+        # the original function that used to live here.
         # -------------------------------------------------------------------------
-        BRANCH_SKIP_START  = 0x80067BE
+        BRANCH_SKIP_START = 0x80067BE
 
         skip_branch = self.asm(f'bne #{hex(cave.cursor - BRANCH_SKIP_START)}')
         assert len(skip_branch) == 2, "Expected 2-byte Thumb instruction"
         self.patch_rom(result, patch_name, BRANCH_SKIP_START, skip_branch)
-        
-        # -------------------------------------------------------------------------
-        # STEP 2: Force an unconditional jump to the original destination
-        # so normal execution flow bypasses our code cave entirely.
-        # -------------------------------------------------------------------------
-        POST_CAVE_RESUME    = 0x80069AE
 
-        bypass_branch = f'b #{hex(POST_CAVE_RESUME - cave.cursor)}'
+        # -------------------------------------------------------------------------
+        # STEP 2: Write an unconditional branch at the very start of the cave that
+        # jumps to POST_CAVE_RESUME, so if execution ever reaches the cave entry
+        # point via normal flow (not our hook), it safely skips all cave logic and
+        # resumes at the correct post-cave address.
+        # -------------------------------------------------------------------------
+        POST_CAVE_RESUME = 0x80069AE
+
+        bypass_branch = f'B #{hex(POST_CAVE_RESUME - cave.cursor)}'
         cave.write_asm(bypass_branch, result, patch_name, [2, 4])
 
         # -------------------------------------------------------------------------
-        # STEP 3: Flip the conditional branch at the hook point from BGE to BLT,
-        # redirecting execution into our code cave when the condition is met.
-        # cave.cursor now points just past the bypass branch — that's our payload entry.
+        # STEP 3: Hook the original clamp site (loc_80074F4) to redirect into our
+        # cave. The original code here checked the negative floor as -(R1 << 15).
+        # We overwrite it with a branch to our cave + two NOPs to pad the bytes we
+        # clobbered (the old NEGS/CMP instructions were 4 bytes each; B.W is 4,
+        # leaving 4 bytes of NOPs).
         # -------------------------------------------------------------------------
-        HOOK_ADDRESS      = 0x80074FA
-        CAVE_PAYLOAD_ENTRY = cave.cursor  # snapshot before writing payload
+        HOOK_ADDRESS = 0x80074F4
 
         hook_patch = self.asm(
-            f'blt #{hex(CAVE_PAYLOAD_ENTRY - (HOOK_ADDRESS + 4))}\n'
-            f'nop'
+            f'B #{hex(cave.cursor - HOOK_ADDRESS)}\n'
+            'NOP\n'
+            'NOP\n'
+            'NOP\n'
+            'NOP\n'
         )
-        assert len(hook_patch) == 6, "Expected 4-byte blt + 2-byte nop"
+        assert len(hook_patch) == 12
         self.patch_rom(result, patch_name, HOOK_ADDRESS, hook_patch)
 
         # -------------------------------------------------------------------------
-        # STEP 4: Write the code cave payload.
+        # STEP 4: Write the cave logic — the new negative clamp calculation.
         #
-        # Scales the result by SCALE_FACTOR using Q14 fixed-point arithmetic:
-        #   multiply by (SCALE_FACTOR * 2^14), then right-shift by 14 to normalise.
+        # The original floor was:  -(R1 << 15)  =  -(R1 * 32768)
+        # The new floor is:        -(R1 * SCALE_FACTOR_Q15)
         #
-        # Original logic: result = -value
-        # New logic:      result = -(value * SCALE_FACTOR)
+        # We use Q15 fixed-point to express the float scale factor as an integer:
+        #   SCALE_FACTOR_Q15 = 1.3 * 2^15 = 42598  (0xA666)
+        #
+        # So the new floor is ~1.3x larger in magnitude, widening the allowed
+        # negative range by 30%.
+        #
+        # Cave logic:
+        #   R2 = R1 * SCALE_FACTOR_Q15       <- scaled floor (positive)
+        #   R2 = -R2                          <- negate to get negative floor
+        #   if R0 >= R2: jump back (no clamp needed)
+        #   else: R0 = R2                     <- clamp R0 to the new floor
+        #         R2 >>= 15                   <- undo Q15 scaling on R2 (side effect / cleanup)
+        #   jump back to main function
         # -------------------------------------------------------------------------
+        SCALE_FACTOR      = 1.3
+        VALUE_SHIFT       = 0xF                          # 15
+        QN_FIXED_POINT    = 2 ** VALUE_SHIFT             # 32768
+        SCALE_FACTOR_Q15  = int(SCALE_FACTOR * QN_FIXED_POINT)  # 42598 = 0xA666
+
         CAVE_RETURN_ADDRESS = 0x8007500
 
-        SCALE_FACTOR     = 1.3
-        Q14_FIXED_POINT  = 2 ** 14
-        SCALE_FACTOR_Q14 = int(SCALE_FACTOR * Q14_FIXED_POINT)  # 21299
-
-        VALUE_SHIFT     = 0xF  # left-shift applied to R1 before scaling
-        NORMALISE_SHIFT = 14   # right-shift to undo Q14 fixed-point
-
+        # Compute the new floor: R2 = -(R1 * SCALE_FACTOR_Q15)
+        # then compare R0 against it
         cave.write_asm(
-            f'LSLS R0, R1, #{VALUE_SHIFT}\n'        # R0 = R1 << 15  (pre-scale input)
-            f'MOV  R2, #{hex(SCALE_FACTOR_Q14)}\n'  # R2 = 21299  (1.3 in Q14)
-            f'MUL  R0, R0, R2\n'                    # R0 = R0 * 21299
-            f'LSR  R0, R0, #{NORMALISE_SHIFT}\n'    # R0 >>= 14  (normalise from Q14)
-            f'NEGS R0, R0\n',                       # R0 = -R0   (match original negation)
+            f'MOV R2, #{hex(SCALE_FACTOR_Q15)}\n'  # R2 = 0xA666
+            f'MUL R2, R1, R2\n'                     # R2 = R1 * 0xA666
+            'NEGS R2, R2\n'                          # R2 = -(R1 * 0xA666)  <- negative floor
+            'CMP R0, R2\n',                          # is R0 already above the floor?
             result,
             patch_name
         )
 
-        # Return branch — cursor is now at the exact position after the payload
+        # Branch back if no clamp needed; otherwise apply clamp and undo Q15 shift
         cave.write_asm(
-            f'b #{hex(CAVE_RETURN_ADDRESS - cave.cursor)}',
+            f'BGE #{hex(CAVE_RETURN_ADDRESS - (cave.cursor + 4))}\n'  # R0 >= floor → no clamp
+            'MOV R0, R2\n'                                             # clamp: R0 = floor
+            f'LSR R2, R2, #{hex(VALUE_SHIFT)}\n'                      # R2 >>= 15 (undo Q15)
+            'NOP',                                                     # alignment pad
             result,
-            patch_name,
-            expected_size=[2, 4]
+            patch_name
         )
 
-        # -------------------------------------------------------------------------
-        # STEP 5: Pad remainder of the cave with NOPs to keep the binary clean.
-        # -------------------------------------------------------------------------
+        # Unconditional return to main function after cave logic
+        cave.write_asm(
+            f'B #{hex(CAVE_RETURN_ADDRESS - cave.cursor)}\n',
+            result,
+            patch_name
+        )
+
+        # Pad any remaining cave bytes with NOPs/zeros to keep ROM clean
         cave.pad(result, patch_name)
 
         return result
