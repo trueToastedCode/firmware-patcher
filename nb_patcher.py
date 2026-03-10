@@ -31,14 +31,14 @@ class NbPatcher(BasePatcher):
     # ---------------------------------------------------------------------------
     # Patching helper — lives on the patcher object or as a module-level function
     # ---------------------------------------------------------------------------
-    def patch_rom(self, result: list, virtual_address: int, new_bytes: bytes) -> None:
+    def patch_rom(self, result: list, patch_name: str, virtual_address: int, new_bytes: bytes) -> None:
         """Patch bytes at *virtual_address*, recording original bytes for undo."""
         ROM_BASE_ADDRESS = 0x8001000
         rom_offset       = virtual_address - ROM_BASE_ADDRESS
         byte_range       = slice(rom_offset, rom_offset + len(new_bytes))
         original_bytes   = self.data[byte_range]
         self.data[byte_range] = new_bytes
-        result          += self.ret("fieldw_mod", rom_offset, original_bytes, new_bytes)
+        result          += self.ret(patch_name, rom_offset, original_bytes, new_bytes)
 
     orig_version_assignments = {
         "g2": f'MOV.W R0, #{hex(NbVersionUtil.string_to_version("1.7.6"))}',
@@ -51,6 +51,7 @@ class NbPatcher(BasePatcher):
         OP: trueToastedCode
         Description: Increase negative Id limit. !!! MUST BE USED together with disalbe key check to get a code cave !!!
         '''
+        patch_name = 'fieldw_mod'
         result = []
 
         cave = CodeCave(self, start=0x8006896, end=0x80068D6)
@@ -63,7 +64,7 @@ class NbPatcher(BasePatcher):
 
         skip_branch = self.asm(f'bne #{hex(cave.cursor - BRANCH_SKIP_START)}')
         assert len(skip_branch) == 2, "Expected 2-byte Thumb instruction"
-        self.patch_rom(result, BRANCH_SKIP_START, skip_branch)
+        self.patch_rom(result, patch_name, BRANCH_SKIP_START, skip_branch)
         
         # -------------------------------------------------------------------------
         # STEP 2: Force an unconditional jump to the original destination
@@ -72,7 +73,7 @@ class NbPatcher(BasePatcher):
         POST_CAVE_RESUME    = 0x80069AE
 
         bypass_branch = f'b #{hex(POST_CAVE_RESUME - cave.cursor)}'
-        cave.write_asm(bypass_branch, result, [2, 4])
+        cave.write_asm(bypass_branch, result, patch_name, [2, 4])
 
         # -------------------------------------------------------------------------
         # STEP 3: Flip the conditional branch at the hook point from BGE to BLT,
@@ -87,7 +88,7 @@ class NbPatcher(BasePatcher):
             f'nop'
         )
         assert len(hook_patch) == 6, "Expected 4-byte blt + 2-byte nop"
-        self.patch_rom(result, HOOK_ADDRESS, hook_patch)
+        self.patch_rom(result, patch_name, HOOK_ADDRESS, hook_patch)
 
         # -------------------------------------------------------------------------
         # STEP 4: Write the code cave payload.
@@ -113,20 +114,22 @@ class NbPatcher(BasePatcher):
             f'MUL  R0, R0, R2\n'                    # R0 = R0 * 21299
             f'LSR  R0, R0, #{NORMALISE_SHIFT}\n'    # R0 >>= 14  (normalise from Q14)
             f'NEGS R0, R0\n',                       # R0 = -R0   (match original negation)
-            result
+            result,
+            patch_name
         )
 
         # Return branch — cursor is now at the exact position after the payload
         cave.write_asm(
             f'b #{hex(CAVE_RETURN_ADDRESS - cave.cursor)}',
             result,
+            patch_name,
             expected_size=[2, 4]
         )
 
         # -------------------------------------------------------------------------
         # STEP 5: Pad remainder of the cave with NOPs to keep the binary clean.
         # -------------------------------------------------------------------------
-        cave.pad(result)
+        cave.pad(result, patch_name)
 
         return result
 

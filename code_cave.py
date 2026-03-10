@@ -55,7 +55,7 @@ class CodeCave:
     # Write helpers
     # ------------------------------------------------------------------
 
-    def write(self, assembled_bytes: bytes, result: list) -> int:
+    def write(self, assembled_bytes: bytes, result: list, patch_name: str) -> int:
         """
         Append pre-assembled bytes at the current cursor.
 
@@ -72,10 +72,10 @@ class CodeCave:
             )
         write_addr   = self._cursor
         self._cursor += len(assembled_bytes)
-        self._patcher.patch_rom(result, write_addr, assembled_bytes)
+        self._patcher.patch_rom(result, patch_name, write_addr, assembled_bytes)
         return write_addr
 
-    def write_asm(self, asm_src: str, result: list, expected_size: Optional[Union[list, int]] = None) -> int:
+    def write_asm(self, asm_src: str, result: list, patch_name: str, expected_size: Optional[Union[list, int]] = None) -> int:
         """
         Assemble *asm_src* and append it to the cave.
 
@@ -94,11 +94,11 @@ class CodeCave:
                     raise ValueError(f'Expected {expected_size}-byte Thumb instruction')
             elif len(assembled) != expected_size:
                 raise ValueError(f'Expected {expected_size}-byte Thumb instruction')
-        return self.write(assembled, result)
+        return self.write(assembled, result, patch_name)
 
-    def pad(self, result: list) -> None:
+    def pad(self, result: list, patch_name: str) -> None:
         """Fill the remaining cave bytes with Thumb NOPs."""
         nop_count = self.remaining // self.NOP_SIZE
         if nop_count:
             nop_padding = self._patcher.asm("nop") * nop_count
-            self.write(nop_padding, result)
+            self.write(nop_padding, result, patch_name)
