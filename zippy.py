@@ -101,19 +101,23 @@ class Zippy():
         elif model in ["f2", "f2plus", "f2pro"]:
             model = "f2"
             compatible_list += ["f2_DRV_AT32F415CxT7"]
-        elif model in ["g2"]:
+        elif model == "g2":
             compatible_list += ["g2_DRV_AT32F415CxT7"]
-        elif model in ["g3_vcu"]:
+        elif model == "g3_vcu":
             compatible_list += ["g3_VCU_AT32"]
+            model = 'g3'
             fw_type = 'VCU'
-        elif model in ["g3_mcu"]:
+        elif model == "g3_mcu":
             compatible_list += ["x3_MCU_AT32"]
+            model = 'g3'
             fw_type = 'MCU'
-        elif model in ["zt3pro_vcu"]:
+        elif model == "zt3pro_vcu":
             compatible_list += ["x3_VCU_AT32"]
+            model = 'zt3pro'
             fw_type = 'VCU'
-        elif model in ["f3pro_vcu"]:
+        elif model == "f3pro_vcu":
             compatible_list += ["f3_VCU_AT32"]
+            model = 'f3pro'
             fw_type = 'VCU'
         data = {
             "schemaVersion": 1,
