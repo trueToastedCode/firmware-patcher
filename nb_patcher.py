@@ -21,11 +21,24 @@ import re
 from base_patcher import BasePatcher
 from util import FindPattern, FindPatternGracef, SignatureException
 from nb_version_util import NbVersionUtil
+from code_cave import CodeCave
 
 
 class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
+    
+    # ---------------------------------------------------------------------------
+    # Patching helper — lives on the patcher object or as a module-level function
+    # ---------------------------------------------------------------------------
+    def patch_rom(self, result: list, virtual_address: int, new_bytes: bytes) -> None:
+        """Patch bytes at *virtual_address*, recording original bytes for undo."""
+        ROM_BASE_ADDRESS = 0x8001000
+        rom_offset       = virtual_address - ROM_BASE_ADDRESS
+        byte_range       = slice(rom_offset, rom_offset + len(new_bytes))
+        original_bytes   = self.data[byte_range]
+        self.data[byte_range] = new_bytes
+        result          += self.ret("fieldw_mod", rom_offset, original_bytes, new_bytes)
 
     orig_version_assignments = {
         "g2": f'MOV.W R0, #{hex(NbVersionUtil.string_to_version("1.7.6"))}',
@@ -40,103 +53,83 @@ class NbPatcher(BasePatcher):
         '''
         result = []
 
-        ROM_BASE_ADDRESS = 0x8001000
-
-        def patch_rom(result, virtual_address, new_bytes):
-            """
-            Patch bytes at a given virtual address in the ROM.
-            Records the original bytes and new bytes for logging/undo purposes.
-            """
-            rom_offset = virtual_address - ROM_BASE_ADDRESS
-            byte_range = slice(rom_offset, rom_offset + len(new_bytes))
-            original_bytes = self.data[byte_range]
-            self.data[byte_range] = new_bytes
-            result += self.ret("fieldw_mod", rom_offset, original_bytes, new_bytes)
+        cave = CodeCave(self, start=0x8006896, end=0x80068D6)
 
         # -------------------------------------------------------------------------
-        # STEP 1: Redirect the instruction at BRANCH_SKIP_START so it jumps over
-        # our code cave, preventing accidental fall-through into hijacked space.
+        # STEP 1: Redirect the BNE at BRANCH_SKIP_START so it jumps over the cave,
+        # preventing fall-through into hijacked space.
         # -------------------------------------------------------------------------
-        BRANCH_SKIP_START   = 0x80067BE
-        BRANCH_SKIP_TARGET  = 0x8006896
+        BRANCH_SKIP_START  = 0x80067BE
 
-        skip_branch = self.asm(f'bne #{hex(BRANCH_SKIP_TARGET - BRANCH_SKIP_START)}')
+        skip_branch = self.asm(f'bne #{hex(cave.cursor - BRANCH_SKIP_START)}')
         assert len(skip_branch) == 2, "Expected 2-byte Thumb instruction"
-        patch_rom(result, BRANCH_SKIP_START, skip_branch)
-
+        self.patch_rom(result, BRANCH_SKIP_START, skip_branch)
+        
         # -------------------------------------------------------------------------
         # STEP 2: Force an unconditional jump to the original destination
         # so normal execution flow bypasses our code cave entirely.
         # -------------------------------------------------------------------------
-        CAVE_BYPASS_ADDRESS = 0x8006896
         POST_CAVE_RESUME    = 0x80069AE
 
-        bypass_branch = self.asm(f'b #{hex(POST_CAVE_RESUME - CAVE_BYPASS_ADDRESS)}')
-        assert len(bypass_branch) == 2, "Expected 2-byte Thumb instruction"
-        patch_rom(result, CAVE_BYPASS_ADDRESS, bypass_branch)
+        bypass_branch = f'b #{hex(POST_CAVE_RESUME - cave.cursor)}'
+        cave.write_asm(bypass_branch, result, [2, 4])
 
         # -------------------------------------------------------------------------
         # STEP 3: Flip the conditional branch at the hook point from BGE to BLT,
         # redirecting execution into our code cave when the condition is met.
-        # This is the actual hook that diverts the original code path.
+        # cave.cursor now points just past the bypass branch — that's our payload entry.
         # -------------------------------------------------------------------------
-        HOOK_ADDRESS        = 0x80074FA
-        CAVE_ENTRY_ADDRESS  = 0x8006898
+        HOOK_ADDRESS      = 0x80074FA
+        CAVE_PAYLOAD_ENTRY = cave.cursor  # snapshot before writing payload
 
         hook_patch = self.asm(
-            f'blt #{hex(CAVE_ENTRY_ADDRESS - (HOOK_ADDRESS + 4))}\n'
+            f'blt #{hex(CAVE_PAYLOAD_ENTRY - (HOOK_ADDRESS + 4))}\n'
             f'nop'
         )
-        assert len(hook_patch) == 6
-        patch_rom(result, HOOK_ADDRESS, hook_patch)
+        assert len(hook_patch) == 6, "Expected 4-byte blt + 2-byte nop"
+        self.patch_rom(result, HOOK_ADDRESS, hook_patch)
 
         # -------------------------------------------------------------------------
         # STEP 4: Write the code cave payload.
         #
-        # Replicates the original game logic, but scales the result by SCALE_FACTOR.
-        # Uses Q14 fixed-point arithmetic to approximate floating point on hardware
-        # with no FPU:
-        #   - Multiply by (SCALE_FACTOR * 2^14) as an integer
-        #   - Then right-shift by 14 to normalise back
+        # Scales the result by SCALE_FACTOR using Q14 fixed-point arithmetic:
+        #   multiply by (SCALE_FACTOR * 2^14), then right-shift by 14 to normalise.
         #
         # Original logic: result = -value
         # New logic:      result = -(value * SCALE_FACTOR)
         # -------------------------------------------------------------------------
-        CAVE_ENTRY_ADDRESS  = 0x8006898
-        CAVE_END_ADDRESS    = 0x80068D6
         CAVE_RETURN_ADDRESS = 0x8007500
 
-        SCALE_FACTOR        = 1.3
-        Q14_FIXED_POINT     = 2 ** 14
-        SCALE_FACTOR_Q14    = int(SCALE_FACTOR * Q14_FIXED_POINT)  # = 21299
+        SCALE_FACTOR     = 1.3
+        Q14_FIXED_POINT  = 2 ** 14
+        SCALE_FACTOR_Q14 = int(SCALE_FACTOR * Q14_FIXED_POINT)  # 21299
 
-        VALUE_SHIFT         = 0xF   # Left-shift applied to R1 before scaling
-        NORMALISE_SHIFT     = 14    # Right-shift to undo Q14 fixed-point scaling
+        VALUE_SHIFT     = 0xF  # left-shift applied to R1 before scaling
+        NORMALISE_SHIFT = 14   # right-shift to undo Q14 fixed-point
 
-        cave_payload = self.asm(
-            f'LSLS R0, R1, #{VALUE_SHIFT}\n'            # R0 = R1 << 15  (pre-scale the input)
-            f'MOV  R2, #{hex(SCALE_FACTOR_Q14)}\n'      # R2 = 1.3 in Q14 fixed-point (21299)
-            f'MUL  R0, R0, R2\n'                        # R0 = R0 * 21299
-            f'LSR  R0, R0, #{NORMALISE_SHIFT}\n'        # R0 >>= 14  (normalise back from Q14)
-            f'NEGS R0, R0\n'                            # R0 = -R0   (negate, matching original logic)
+        cave.write_asm(
+            f'LSLS R0, R1, #{VALUE_SHIFT}\n'        # R0 = R1 << 15  (pre-scale input)
+            f'MOV  R2, #{hex(SCALE_FACTOR_Q14)}\n'  # R2 = 21299  (1.3 in Q14)
+            f'MUL  R0, R0, R2\n'                    # R0 = R0 * 21299
+            f'LSR  R0, R0, #{NORMALISE_SHIFT}\n'    # R0 >>= 14  (normalise from Q14)
+            f'NEGS R0, R0\n',                       # R0 = -R0   (match original negation)
+            result
         )
-        cave_payload += self.asm(
-            f'b #{hex(CAVE_RETURN_ADDRESS - (CAVE_ENTRY_ADDRESS + len(cave_payload)))}'
-        )                                               # Jump back to normal execution flow
-        patch_rom(result, CAVE_ENTRY_ADDRESS, cave_payload)
+
+        # Return branch — cursor is now at the exact position after the payload
+        cave.write_asm(
+            f'b #{hex(CAVE_RETURN_ADDRESS - cave.cursor)}',
+            result,
+            expected_size=[2, 4]
+        )
 
         # -------------------------------------------------------------------------
-        # STEP 5: Pad the remainder of the cave with NOPs to keep the binary clean.
+        # STEP 5: Pad remainder of the cave with NOPs to keep the binary clean.
         # -------------------------------------------------------------------------
-        NOP_INSTRUCTION_SIZE = 2  # Thumb NOP = 2 bytes
-        remaining_cave_bytes = CAVE_END_ADDRESS - (CAVE_ENTRY_ADDRESS + len(cave_payload))
-        nop_count            = remaining_cave_bytes // NOP_INSTRUCTION_SIZE
-        nop_padding          = self.asm('nop') * nop_count
-
-        patch_rom(result, CAVE_ENTRY_ADDRESS + len(cave_payload), nop_padding)
+        cave.pad(result)
 
         return result
-    
+
     def version_spoof(self, version):
         '''
         OP: trueToastedCode
